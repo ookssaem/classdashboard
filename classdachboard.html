@@ -1,0 +1,4551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>학급 대시보드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/innks/NanumSquareRound@master/nanumsquareround.min.css">
+<style>
+  :root{
+    --paper: #FAF3E7;
+    --paper-2: #F0E3C7;
+    --ink: #4A4030;
+    --ink-soft: #8D8067;
+    --ledger-green: #A9895C;
+    --ledger-green-dk: #6B5A3C;
+    --amber: #F0DCB0;
+    --amber-soft: #FAF0DC;
+    --amber-deep: #8A6D35;
+    --red-ink: #C17A5E;
+    --red-ink-soft: #F6DFD2;
+    --special-yellow: #FCEFAE;
+    --special-yellow-text: #8C6F1E;
+    --line: #E6D9BE;
+    --white: #FFFCF6;
+    --shadow: 0 2px 10px rgba(90,74,46,0.10);
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+  }
+  ::selection{background:var(--amber-soft);}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:236px;
+    flex-shrink:0;
+    background:linear-gradient(180deg, var(--ledger-green-dk), var(--ledger-green) 85%);
+    color:#F7EFDD;
+    min-height:100vh;
+    padding:28px 0 24px;
+    position:sticky;
+    top:0;
+    display:flex;
+    flex-direction:column;
+  }
+  .brand{
+    padding:0 24px 22px;
+    border-bottom:1px solid rgba(239,233,216,0.16);
+    margin-bottom:18px;
+  }
+  .brand-mark{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:800;
+    font-size:15px;
+    letter-spacing:.14em;
+    color:var(--amber-soft);
+    text-transform:uppercase;
+  }
+  .brand-sub{
+    font-size:12px;
+    color:#D9C9A3;
+    margin-top:4px;
+    font-family:'NanumSquareRound', sans-serif;
+  }
+  nav.nav-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    padding:0 12px;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    color:#F0E6CF;
+    font-size:14.5px;
+    font-weight:400;
+    transition:background .15s ease, color .15s ease;
+    user-select:none;
+  }
+  .nav-item .num{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11.5px;
+    color:#C9B98D;
+    width:18px;
+  }
+  .nav-item:hover{background:rgba(239,233,216,0.08);}
+  .nav-item.active{
+    background:var(--amber);
+    color:#5C4423;
+    font-weight:700;
+  }
+  .nav-item.active .num{color:#6B5A3C;}
+  .sidebar-db-btn{
+    margin-top:auto;
+    margin-left:24px;
+    margin-right:24px;
+    margin-bottom:18px;
+    padding:10px 14px;
+    background:rgba(239,233,216,0.1);
+    border:1px solid rgba(239,233,216,0.3);
+    border-radius:8px;
+    color:#F0E6CF;
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+  }
+  .sidebar-db-btn:hover{background:rgba(239,233,216,0.2);}
+
+  /* ---------- Class archive (multi-year switching) ---------- */
+  .class-archive-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    padding:0 12px;
+    max-height:150px;
+    overflow-y:auto;
+  }
+  .class-archive-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:6px;
+    padding:9px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    color:#D9C9A3;
+    font-size:12.5px;
+    font-family:'NanumSquareRound', sans-serif;
+  }
+  .class-archive-item:hover{background:rgba(239,233,216,0.08); color:#F0E6CF;}
+  .class-archive-item-del{
+    border:none;
+    background:none;
+    color:rgba(217,201,163,0.5);
+    cursor:pointer;
+    font-size:13px;
+    flex-shrink:0;
+  }
+  .class-archive-item-del:hover{color:#E39A8B;}
+  .class-archive-add-btn{
+    margin:6px 12px 0;
+    padding:9px 14px;
+    background:none;
+    border:1px dashed rgba(239,233,216,0.35);
+    border-radius:8px;
+    color:#D9C9A3;
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+  }
+  .class-archive-add-btn:hover{background:rgba(239,233,216,0.08); color:#F0E6CF;}
+
+  /* ---------- Google sign-in / cloud sync ---------- */
+  .sidebar-divider{
+    margin:14px 24px 0;
+    border-top:1px solid rgba(239,233,216,0.16);
+  }
+  .sidebar-auth-btn{
+    width:auto;
+    margin:14px 24px 0;
+  }
+  .auth-btn{
+    padding:10px;
+    background:var(--amber);
+    color:#5C4423;
+    border:none;
+    border-radius:6px;
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    cursor:pointer;
+    transition:background .2s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .auth-btn:hover{background:var(--amber-soft);}
+  .auth-btn.logout-btn{
+    background:rgba(255,255,255,0.15);
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.3);
+  }
+  .auth-btn.logout-btn:hover{background:rgba(255,255,255,0.25);}
+  .user-info{
+    font-size:11.5px;
+    color:#D9C9A3;
+    margin-bottom:8px;
+    text-align:center;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .sync-status{
+    font-size:11px;
+    text-align:center;
+    margin-top:6px;
+    color:#C9B98D;
+  }
+  .sync-status.synced{color:#8BE38B;}
+  .sync-status.syncing{color:#F0DCB0;}
+  .sync-status.error{color:#E39A8B;}
+
+  /* ---------- Student database modal ---------- */
+  #studentDbModalBox{width:420px; max-width:92vw;}
+  .student-db-add-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .student-db-add-row input[type=text]{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 9px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .student-db-add-row select{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 9px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    flex:none;
+    width:70px;
+  }
+  #dbStudentNumber{flex:none; width:80px;}
+  #dbStudentName{flex:1; min-width:80px;}
+  .student-db-table-wrap{max-height:320px; overflow-y:auto;}
+  table.student-db-table th{text-align:center;}
+  table.student-db-table.data-table th{text-align:center;}
+  table.student-db-table td{text-align:center;}
+  table.student-db-table td[contenteditable="true"]{cursor:text; outline:none;}
+  table.student-db-table td[contenteditable="true"]:focus{background:var(--amber-soft);}
+  table.student-db-table td.db-gender-cell{cursor:pointer;}
+  table.student-db-table td.db-gender-cell:hover{background:var(--amber-soft);}
+  .sidebar-foot{
+    padding:18px 24px 0;
+    border-top:1px solid rgba(239,233,216,0.16);
+    font-size:11.5px;
+    color:#C9B98D;
+    font-family:'NanumSquareRound', sans-serif;
+    line-height:1.6;
+  }
+
+  /* ---------- Main ---------- */
+  main{
+    flex:1;
+    min-width:0;
+    padding:40px 56px 70px;
+    max-width:1560px;
+    margin:0 auto;
+  }
+  .page{display:none;}
+  .page.active{display:block; animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .page-title{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:800;
+    font-size:34px;
+    color:var(--ledger-green-dk);
+    letter-spacing:-.01em;
+    margin:0;
+  }
+  .meta-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .meta-field{
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:6px 12px;
+    box-shadow:var(--shadow);
+  }
+  .meta-field label{
+    font-size:11px;
+    color:var(--ink-soft);
+    font-family:'NanumSquareRound', sans-serif;
+  }
+  .meta-field input{
+    border:none;
+    background:transparent;
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    color:var(--ledger-green-dk);
+    width:auto;
+    text-align:center;
+  }
+  .meta-field input:focus{outline:none;}
+  #metaYear{width:56px;}
+  #metaGrade{width:64px;}
+  #metaClass{width:64px;}
+  .meta-divider{color:var(--line); font-size:18px;}
+  .meta-row{position:relative;}
+  #metaEditRow{align-items:center;}
+  .meta-confirmed-row{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .meta-confirmed-text{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:800;
+    font-size:20px;
+    color:var(--ledger-green-dk);
+  }
+  .meta-edit-btn{
+    font-size:11px;
+    color:var(--ink-soft);
+    background:none;
+    border:none;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .meta-edit-btn:hover{color:var(--ledger-green-dk);}
+
+  .section-label{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--amber-deep);
+    font-weight:700;
+    margin:0 0 8px 2px;
+  }
+  h2.block-title{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:19px;
+    font-weight:700;
+    color:var(--ledger-green-dk);
+    margin:0 0 14px;
+  }
+
+  /* ---------- Dashboard top grid: calendar + timetable ---------- */
+  .dash-grid-top{
+    display:grid;
+    grid-template-columns:1.5fr 0.85fr;
+    gap:28px;
+    margin-bottom:28px;
+  }
+  .card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:28px 30px;
+    min-width:0;
+  }
+
+  /* Calendar */
+  .cal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .cal-title{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:var(--ledger-green-dk);
+  }
+  .cal-nav{display:flex; gap:6px;}
+  .cal-btn{
+    width:26px; height:26px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ledger-green-dk);
+    cursor:pointer;
+    font-size:13px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cal-btn:hover{background:var(--amber-soft);}
+  table.cal-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+  }
+  table.cal-table th{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    color:var(--ink-soft);
+    font-weight:400;
+    padding-bottom:8px;
+    text-align:left;
+    padding-left:6px;
+  }
+  table.cal-table th:first-child{color:var(--red-ink);}
+  table.cal-table td{
+    text-align:left;
+    vertical-align:top;
+    font-size:12.5px;
+    height:98px;
+    width:14.28%;
+    color:var(--ink);
+    position:relative;
+    border:1px solid var(--line);
+    padding:5px 5px;
+  }
+  .cal-daynum{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px; height:22px;
+    border-radius:50%;
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:3px;
+  }
+  table.cal-table td:first-child .cal-daynum{color:var(--red-ink);}
+  table.cal-table td.today .cal-daynum{
+    background:var(--red-ink);
+    color:#fff;
+  }
+  table.cal-table td.other-month{background:var(--paper);}
+  table.cal-table td.has-events{cursor:pointer;}
+  table.cal-table td.other-month .cal-daynum{color:#C7BEA3;}
+  .cal-events{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .cal-event-chip{
+    font-size:10.5px;
+    line-height:1.3;
+    padding:2px 5px;
+    border-radius:5px;
+    background:var(--chip-bg, var(--amber-soft));
+    color:var(--chip-text, var(--amber-deep));
+    font-weight:700;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    cursor:pointer;
+  }
+  .cal-event-chip-spacer{
+    font-size:10.5px;
+    line-height:1.3;
+    padding:2px 5px;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .cal-event-chip:hover, .cal-event-chip.chip-hover{
+    background:var(--ledger-green-dk);
+    color:#fff;
+  }
+  .cal-event-chip.seg-start{
+    border-radius:5px 0 0 5px;
+    margin-right:-6px;
+    padding-right:9px;
+    position:relative;
+    z-index:1;
+  }
+  .cal-event-chip.seg-end{
+    border-radius:0 5px 5px 0;
+    margin-left:-6px;
+    padding-left:9px;
+  }
+  .cal-event-chip.seg-mid{
+    border-radius:0;
+    margin-left:-6px;
+    margin-right:-6px;
+    padding-left:9px;
+    padding-right:9px;
+    position:relative;
+    z-index:1;
+  }
+  .cal-event-more{
+    font-size:10px;
+    color:var(--ink-soft);
+    padding-left:2px;
+  }
+
+  /* Timetable */
+  .tt-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+    position:relative;
+  }
+  .tt-head-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .week-select-wrap{position:relative;}
+  .week-select-btn{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--ledger-green-dk);
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:7px 12px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .week-select-btn:hover{background:var(--amber-soft);}
+  .week-select-btn .caret{font-size:10px; color:var(--ink-soft);}
+  .week-select-panel{
+    display:none;
+    position:absolute;
+    top:calc(100% + 6px);
+    right:0;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 14px 34px rgba(74,64,48,0.2);
+    min-width:230px;
+    z-index:60;
+    padding:8px;
+  }
+  .week-select-panel.open{display:block;}
+  .week-option-list{
+    max-height:200px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    margin-bottom:6px;
+  }
+  .week-option{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:8px 10px;
+    border-radius:6px;
+    font-size:12.5px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .week-option:hover{background:var(--amber-soft);}
+  .week-option.active{background:var(--amber); color:#5C4423; font-weight:700;}
+  .week-option-label{flex:1;}
+  .week-option-del{
+    border:none;
+    background:none;
+    color:#C7BEA3;
+    cursor:pointer;
+    font-size:14px;
+    line-height:1;
+    padding:2px 4px;
+    flex-shrink:0;
+  }
+  .week-option-del:hover{color:var(--red-ink);}
+  .week-add-btn{
+    width:100%;
+    text-align:center;
+    padding:8px 10px;
+    border-radius:6px;
+    border:1px dashed var(--line);
+    background:none;
+    color:var(--ledger-green-dk);
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:'NanumSquareRound', sans-serif;
+  }
+  .week-add-btn:hover{background:var(--amber-soft);}
+
+  .timetable-wrap{overflow-x:auto;}
+  table.tt-table{
+    width:100%;
+    table-layout:fixed;
+    border-collapse:collapse;
+  }
+  table.tt-table th{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    color:var(--white);
+    background:var(--ledger-green);
+    padding:8px 4px;
+    font-weight:700;
+  }
+  table.tt-table th.period-col, table.tt-table td.period-col{
+    background:var(--paper-2);
+    color:var(--ink-soft);
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    width:40px;
+  }
+  table.tt-table th:not(.period-col){ width:19.2%; }
+  table.tt-table td{
+    border:1px solid var(--line);
+    padding:0;
+    text-align:center;
+    vertical-align:middle;
+    font-size:12.5px;
+    height:54px;
+    max-height:54px;
+    overflow:hidden;
+  }
+  table.tt-table td[contenteditable="true"]{
+    outline:none;
+    cursor:text;
+    text-align:center;
+    vertical-align:middle;
+  }
+  table.tt-table td[contenteditable="true"]:focus{
+    background:var(--amber-soft);
+  }
+  table.tt-table td.period-col{text-align:center;}
+  table.tt-table td.tt-clickable{cursor:pointer;}
+  table.tt-table td.tt-clickable:hover{background:var(--amber-soft);}
+  table.tt-table td.tt-cell-special{background:var(--special-yellow);}
+  table.tt-table td.tt-cell-special .tt-cell-subject{color:var(--special-yellow-text);}
+  .tt-cell-subject{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--ink);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    padding:0 4px;
+  }
+  .tt-cell-meta{
+    font-size:10px;
+    color:var(--ink-soft);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    padding:0 4px;
+    margin-top:2px;
+  }
+  .tt-notes-textarea{
+    width:100%;
+    min-height:64px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--paper);
+    resize:vertical;
+  }
+  .tt-notes-textarea:focus{outline:2px solid var(--amber-soft);}
+  .tt-notes-textarea:disabled{color:var(--ink-soft); background:var(--paper-2); cursor:not-allowed;}
+  .tt-empty-row{
+    text-align:center;
+    vertical-align:middle;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    padding:26px 12px;
+    line-height:1.6;
+    border:1px dashed var(--line);
+  }
+  .tt-empty-row strong{color:var(--ledger-green-dk);}
+
+  /* ---------- Bottom cards row ---------- */
+  .dash-grid-bottom{
+    display:grid;
+    grid-template-columns:0.6fr 1.2fr 1.7fr;
+    gap:28px;
+  }
+  .stat-num{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:800;
+    font-size:58px;
+    color:var(--ledger-green-dk);
+    line-height:1;
+  }
+  .stat-cap{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-top:8px;
+  }
+  .stat-breakdown{
+    margin-top:16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    border-top:1px dashed var(--line);
+    padding-top:12px;
+  }
+  .stat-breakdown div{
+    display:flex;
+    justify-content:space-between;
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .stat-breakdown b{color:var(--ink); font-family:'NanumSquareRound', sans-serif;}
+
+  .schedule-list, .checklist{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    max-height:235px;
+    overflow-y:auto;
+  }
+  .schedule-item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:10px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .schedule-item:last-child{border-bottom:none;}
+  .schedule-date{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    color:var(--red-ink);
+    background:var(--red-ink-soft);
+    border-radius:5px;
+    padding:3px 6px;
+    white-space:nowrap;
+    flex-shrink:0;
+    margin-top:1px;
+  }
+  .schedule-text{font-size:13.5px; flex:1; padding-top:2px;}
+  .schedule-del{
+    border:none; background:none; color:#C7BEA3; cursor:pointer; font-size:15px; padding:0 2px;
+  }
+  .schedule-del:hover{color:var(--red-ink);}
+
+  .checklist-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .checklist-item:last-child{border-bottom:none;}
+  .checklist-item input[type=checkbox]{
+    width:16px; height:16px;
+    accent-color:var(--ledger-green);
+    flex-shrink:0;
+  }
+  .checklist-text{font-size:13.5px; flex:1; line-height:1.5;}
+  .checklist-item.done .checklist-text{color:var(--ink-soft); text-decoration:line-through;}
+  .checklist-deadline{
+    display:inline-block;
+    font-size:10.5px;
+    font-weight:700;
+    padding:1px 6px;
+    border-radius:9px;
+    background:var(--amber);
+    color:#5C4423;
+    margin-right:3px;
+  }
+  .checklist-deadline.urgent{
+    background:var(--red-ink);
+    color:#fff;
+  }
+  .checklist-deadline.overdue{
+    background:#9E2B1E;
+    color:#fff;
+  }
+  .checklist-item.overdue:not(.done) .checklist-text{
+    color:#9E2B1E;
+  }
+  .checklist-del{
+    border:none; background:none; color:#C7BEA3; cursor:pointer; font-size:15px;
+  }
+  .checklist-del:hover{color:var(--red-ink);}
+
+  .checklist-columns{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    margin-top:14px;
+    position:relative;
+  }
+  .checklist-columns::before{
+    content:"";
+    position:absolute;
+    top:0; bottom:0;
+    left:50%;
+    border-left:1px dashed var(--line);
+  }
+  .checklist-col{padding:0 16px;}
+  .checklist-col:first-child{padding-left:0;}
+  .checklist-col:last-child{padding-right:0;}
+  .checklist-col-title{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--line);
+  }
+  .checklist-col .checklist{min-height:20px;}
+
+  .inline-add{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:14px;
+  }
+  .inline-add input{
+    flex:1;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+  }
+  .inline-add input:focus{outline:2px solid var(--amber-soft);}
+  .inline-add input[type=date]{flex:none; width:130px;}
+  .date-tilde{color:var(--ink-soft); font-size:13px; flex:none;}
+  .inline-add select{
+    flex:none;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+
+  .schedule-add-form{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .schedule-add-row1{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:nowrap;
+  }
+  .schedule-add-row1 input[type=date]{
+    flex:none;
+    width:112px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 8px;
+    font-size:12.5px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+  }
+  .schedule-type-select{
+    flex:none;
+    width:76px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 6px;
+    font-size:12.5px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .schedule-add-row2{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .schedule-add-row2 input[type=text]{
+    flex:1;
+    min-width:0;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+  }
+  .schedule-add-row2 input[type=text]:focus{outline:2px solid var(--amber-soft);}
+  .schedule-add-row2 .btn{flex:none;}
+
+  /* ---------- Student records card ---------- */
+  .record-date-filter{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--ink-soft);
+    flex-shrink:0;
+  }
+  .record-date-filter input[type=date]{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:7px 9px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .record-title-group{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex:1;
+    min-width:0;
+  }
+  .record-title-group h2{flex-shrink:0; white-space:nowrap;}
+  .record-title-group select{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:7px 9px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    flex:0 1 160px;
+    min-width:100px;
+  }
+  .record-title-group .btn{flex:none;}
+
+  .student-record-block{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px 18px 18px;
+    margin-bottom:14px;
+    box-shadow:0 3px 10px rgba(74,64,48,0.07);
+  }
+  .student-record-block:last-child{margin-bottom:0;}
+  .student-record-block-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .student-record-block-head h3{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:800;
+    font-size:16px;
+    color:var(--ledger-green-dk);
+    margin:0;
+  }
+  table.record-entry-table{width:100%; border-collapse:collapse; table-layout:fixed; background:var(--white); border-radius:10px; overflow:hidden;}
+  table.record-entry-table th{
+    text-align:center;
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    color:#fff;
+    background:var(--ledger-green);
+    padding:7px 6px;
+  }
+  table.record-entry-table td{
+    padding:7px 6px;
+    border-bottom:1px solid var(--line);
+    font-size:12.5px;
+    vertical-align:top;
+    text-align:center;
+  }
+  table.record-entry-table th:nth-child(1), table.record-entry-table td:nth-child(1){width:58px;}
+  table.record-entry-table th:nth-child(2), table.record-entry-table td:nth-child(2){width:64px;}
+  table.record-entry-table th:nth-child(3), table.record-entry-table td:nth-child(3){width:96px;}
+  table.record-entry-table th:nth-child(4), table.record-entry-table td:nth-child(4){width:auto;}
+  table.record-entry-table td:nth-child(4){text-align:left;}
+  table.record-entry-table th:nth-child(5), table.record-entry-table td:nth-child(5){width:22%;}
+  table.record-entry-table td:nth-child(5){text-align:left;}
+  table.record-entry-table th:nth-child(6), table.record-entry-table td:nth-child(6){width:26px; padding-left:2px; padding-right:2px;}
+  table.record-entry-table tr:hover td{background:var(--paper-2);}
+
+  .rec-cell{cursor:pointer; min-height:20px; word-break:break-word; white-space:pre-wrap;}
+  .rec-cell.rec-subject-cell{cursor:default;}
+  .rec-cell-placeholder{color:#C7BEA3;}
+  .rec-inline-select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:4px 3px;
+    font-size:12px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--white);
+  }
+  .rec-text-edit-wrap{display:flex; flex-direction:column; gap:6px;}
+  .rec-text-edit-wrap textarea{
+    width:100%;
+    min-height:32px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:6px 8px;
+    font-size:12.5px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--white);
+    resize:none;
+    overflow:hidden;
+  }
+  .rec-text-edit-wrap .btn{align-self:flex-end; padding:5px 12px; font-size:12px;}
+  .rec-save-btn:hover{text-decoration:underline;}
+
+  /* ---------- Parent consult ---------- */
+  .pc-content-textarea{
+    width:100%;
+    min-height:70px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:10px 12px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    resize:vertical;
+  }
+  .pc-content-textarea:focus{outline:2px solid var(--amber-soft);}
+  table.pc-table.data-table th{text-align:center;}
+  table.pc-table th:nth-child(1), table.pc-table td:nth-child(1){width:10%;}
+  table.pc-table th:nth-child(2), table.pc-table td:nth-child(2){width:11%;}
+  table.pc-table td:nth-child(2){white-space:nowrap; text-align:center;}
+  table.pc-table th:nth-child(3), table.pc-table td:nth-child(3){width:7%;}
+  table.pc-table td:nth-child(3){white-space:nowrap; text-align:center;}
+  table.pc-table th:nth-child(4), table.pc-table td:nth-child(4){width:50%;}
+  table.pc-table th:nth-child(5), table.pc-table td:nth-child(5){width:14%;}
+  table.pc-table th:nth-child(6), table.pc-table td:nth-child(6){width:4%;}
+  table.pc-table td{vertical-align:top;}
+  table.pc-table td.pc-cell{cursor:pointer; word-break:break-word; white-space:pre-wrap;}
+  table.pc-table .pc-inline-select{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:4px 3px;
+    font-size:12px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--white);
+  }
+  table.pc-table .pc-inline-date{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:4px 3px;
+    font-size:12px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--white);
+  }
+  table.pc-table .pc-inline-wrap{display:flex; flex-direction:column; gap:4px;}
+
+  /* ---------- Student evaluation ---------- */
+  .eval-subject-buttons{display:flex; flex-wrap:wrap; gap:8px;}
+  .eval-subject-btn{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:13px;
+    font-weight:700;
+    padding:8px 16px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .eval-subject-btn:hover{background:var(--amber-soft);}
+  .eval-subject-btn.active{background:var(--ledger-green); border-color:var(--ledger-green); color:#fff;}
+  .eval-table-wrap{overflow-x:auto; margin-top:4px; max-width:100%;}
+  table.eval-table{border-collapse:collapse; table-layout:fixed;}
+  table.eval-table th{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11.5px;
+    color:#fff;
+    background:var(--ledger-green);
+    padding:8px 8px;
+    text-align:center;
+    line-height:1.4;
+    white-space:nowrap;
+    border:1px solid rgba(255,255,255,0.35);
+  }
+  table.eval-table th.eval-th-sub{
+    background:var(--ledger-green-dk);
+    font-size:11px;
+    padding:6px 8px;
+  }
+  table.eval-table th.eval-th-fixed{background:var(--ledger-green); color:#fff;}
+  table.eval-table td{
+    padding:7px 8px;
+    border:1px solid var(--line);
+    font-size:12.5px;
+    text-align:center;
+    white-space:nowrap;
+    background:var(--white);
+  }
+  table.eval-table td.eval-td-fixed{background:var(--paper-2); color:var(--ink); font-weight:700;}
+  table.eval-table th.eval-th-fixed:nth-child(1), table.eval-table td.eval-td-fixed:nth-child(1){
+    position:sticky; left:0; width:52px; box-sizing:border-box; z-index:2;
+  }
+  table.eval-table th.eval-th-fixed:nth-child(2), table.eval-table td.eval-td-fixed:nth-child(2){
+    position:sticky; left:52px; width:76px; box-sizing:border-box; z-index:2;
+    box-shadow:2px 0 4px rgba(74,64,48,0.12);
+  }
+  table.eval-table thead th.eval-th-fixed{z-index:3;}
+  table.eval-table select, table.eval-table input[type=text]{
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:5px 6px;
+    font-size:12px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--white);
+    box-sizing:border-box;
+  }
+  table.eval-table input[type=text]{
+    width:calc(100% - 8px);
+    margin:0 4px;
+  }
+  table.eval-table select.eval-level-select{
+    width:auto;
+    min-width:88px;
+    max-width:112px;
+    margin:0 auto;
+    display:block;
+  }
+  table.eval-table td.eval-remark-td{white-space:normal;}
+  table.eval-table input.eval-remark-input{
+    width:calc(100% - 8px);
+    margin:0 4px;
+    box-sizing:border-box;
+  }
+  .eval-level-select.lvl-verygood{background:#CCE6C4; color:#2F5A3E; font-weight:700;}
+  .eval-level-select.lvl-good{background:#F7EFB8; color:#7A6A1E; font-weight:700;}
+  .eval-level-select.lvl-fair{background:#F9DDBB; color:#8A5A20; font-weight:700;}
+  .eval-level-select.lvl-needs{background:#F6CFC9; color:#8B3A2E; font-weight:700;}
+  .eval-th-clickable{cursor:pointer;}
+  .eval-th-clickable:hover{filter:brightness(1.1);}
+  .eval-plan-popup{
+    display:none;
+    position:fixed;
+    z-index:900;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 14px 40px rgba(74,64,48,0.22);
+    padding:16px 18px;
+    width:240px;
+  }
+  .eval-plan-popup.open{display:block;}
+  .eval-plan-popup .modal-input{margin-bottom:6px;}
+  .row-del{border:none; background:none; color:#C7BEA3; cursor:pointer; font-size:15px;}
+  .row-del:hover{color:var(--red-ink);}
+  .row-del.confirm-armed{color:var(--red-ink); font-weight:700; font-size:11px;}
+
+  .rec-type-popup{
+    display:none;
+    position:fixed;
+    z-index:900;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 14px 40px rgba(74,64,48,0.22);
+    padding:12px 14px;
+    min-width:130px;
+  }
+  .rec-type-popup.open{display:block;}
+  .rec-type-popup-list{display:flex; flex-direction:column; gap:8px;}
+  .rec-type-popup-item{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--ink);}
+  .rec-type-popup-item input{width:15px; height:15px; accent-color:var(--ledger-green);}
+
+  /* ---------- All records modal ---------- */
+  #allRecordsModalBox{width:1180px; max-width:96vw; max-height:88vh; display:flex; flex-direction:column;}
+  .all-records-filters{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .all-records-filters select{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    flex:1;
+  }
+  .all-records-table-wrap{
+    max-height:62vh;
+    overflow-y:auto;
+  }
+  table.all-records-table{width:100%; border-collapse:collapse; table-layout:fixed;}
+  table.all-records-table.data-table th{text-align:center;}
+  table.all-records-table th{
+    text-align:center;
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    color:#fff;
+    background:var(--ledger-green);
+    padding:8px 6px;
+    position:sticky;
+    top:0;
+  }
+  table.all-records-table td{
+    padding:8px 6px;
+    border-bottom:1px solid var(--line);
+    font-size:12.5px;
+    vertical-align:top;
+    text-align:center;
+    word-break:break-word;
+    white-space:pre-wrap;
+  }
+  table.all-records-table th:nth-child(1), table.all-records-table td:nth-child(1){width:9%;}
+  table.all-records-table th:nth-child(2), table.all-records-table td:nth-child(2){width:7%;}
+  table.all-records-table th:nth-child(3), table.all-records-table td:nth-child(3){width:6%;}
+  table.all-records-table th:nth-child(4), table.all-records-table td:nth-child(4){width:7%;}
+  table.all-records-table th:nth-child(5), table.all-records-table td:nth-child(5){width:9%;}
+  table.all-records-table th:nth-child(6), table.all-records-table td:nth-child(6){width:38%;}
+  table.all-records-table td:nth-child(6){text-align:left;}
+  table.all-records-table th:nth-child(7), table.all-records-table td:nth-child(7){width:24%;}
+  table.all-records-table td:nth-child(7){text-align:left;}
+
+  /* ---------- Attendance card ---------- */
+  .attendance-row1{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .attendance-row1 select{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  #attStudentSelect{flex:1; min-width:0;}
+  #attTypeSelect, #attCategorySelect{flex:none; width:112px;}
+  #attCategorySelect:disabled{opacity:0.45; cursor:not-allowed;}
+  .attendance-table-wrap{
+    margin-top:16px;
+    max-height:280px;
+    overflow-y:auto;
+    overflow-x:auto;
+  }
+  table.attendance-table{width:418px; table-layout:fixed; border-collapse:collapse;}
+  table.attendance-table th{
+    text-align:center;
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    color:#fff;
+    background:var(--ledger-green);
+    padding:8px 6px;
+    position:sticky;
+    top:0;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+  table.attendance-table td{
+    padding:8px 6px;
+    border-bottom:1px solid var(--line);
+    font-size:12.5px;
+    vertical-align:middle;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    text-align:center;
+  }
+  table.attendance-table th:nth-child(1), table.attendance-table td:nth-child(1){width:100px;}
+  table.attendance-table th:nth-child(2), table.attendance-table td:nth-child(2){width:70px;}
+  table.attendance-table th:nth-child(3), table.attendance-table td:nth-child(3){width:112px;}
+  table.attendance-table th:nth-child(4), table.attendance-table td:nth-child(4){width:56px; text-align:center;}
+  table.attendance-table th:nth-child(5), table.attendance-table td:nth-child(5){width:56px; text-align:center;}
+  table.attendance-table th:nth-child(6), table.attendance-table td:nth-child(6){width:24px; text-align:center; padding-left:2px; padding-right:2px;}
+  table.attendance-table.data-table th{text-align:center;}
+  table.attendance-table td[contenteditable="true"]{outline:none; cursor:text;}
+  table.attendance-table td[contenteditable="true"]:focus{background:var(--amber-soft);}
+  table.attendance-table input[type=checkbox]{width:16px; height:16px; accent-color:var(--ledger-green);}
+  .att-cell-dash{color:#C7BEA3;}
+  .att-clickable{cursor:pointer;}
+  .att-clickable:hover{text-decoration:underline;}
+  .schedule-type-tag{
+    font-size:10.5px;
+    font-weight:700;
+    padding:2px 7px;
+    border-radius:9px;
+    flex-shrink:0;
+  }
+  .btn{
+    border:none;
+    background:var(--ledger-green);
+    color:#fff;
+    border-radius:6px;
+    padding:8px 16px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:'NanumSquareRound', sans-serif;
+    white-space:nowrap;
+  }
+  .btn:hover{background:var(--ledger-green-dk);}
+  .btn.amber{background:var(--amber); color:#5C4423;}
+  .btn.amber:hover{background:#E8CF98;}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink-soft);}
+  .btn.ghost.active{background:var(--ledger-green-dk); border-color:var(--ledger-green-dk); color:#fff;}
+  .date-label{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    white-space:nowrap;
+  }
+
+  .empty-note{
+    font-size:12.5px;
+    color:#A79E80;
+    padding:14px 0;
+    text-align:center;
+  }
+  .page-copyright{
+    text-align:center;
+    font-size:11.5px;
+    color:#A79E80;
+    margin-top:40px;
+    padding-top:16px;
+  }
+
+  /* ---------- Students page ---------- */
+  .students-layout{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  .student-list{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex; flex-direction:column;
+    max-height:520px;
+    overflow-y:auto;
+  }
+  .student-list li{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 8px;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:13.5px;
+  }
+  .student-list li:hover{background:var(--paper-2);}
+  .student-list li.active{background:var(--amber); color:#5C4423; font-weight:700;}
+  .student-list li .snum{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    color:var(--ink-soft);
+    width:22px;
+  }
+  .student-list li.active .snum{color:#6B5A3C;}
+  .student-detail-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .student-detail-head h3{
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:22px;
+    margin:0;
+    color:var(--ledger-green-dk);
+  }
+  .record-entry{
+    border-bottom:1px dashed var(--line);
+    padding:12px 0;
+  }
+  .record-entry:last-child{border-bottom:none;}
+  .record-top{
+    display:flex; align-items:center; gap:8px; margin-bottom:5px;
+  }
+  .tag{
+    font-size:10.5px;
+    font-family:'NanumSquareRound', sans-serif;
+    padding:2px 7px;
+    border-radius:4px;
+    font-weight:700;
+  }
+  .tag.observe{background:#EFE6D2; color:var(--ledger-green-dk);}
+  .tag.counsel{background:var(--amber-soft); color:#8A6D35;}
+  .record-date{font-family:'NanumSquareRound', sans-serif; font-size:11.5px; color:var(--ink-soft);}
+  .record-text{font-size:13.5px; line-height:1.6; color:var(--ink);}
+
+  .form-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+  .form-row select, .form-row input, .form-row textarea{
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:13px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+  }
+  textarea{width:100%; resize:vertical; min-height:56px;}
+
+  /* Table pages (parent consult, evaluation) */
+  table.data-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:6px;
+  }
+  table.data-table th{
+    text-align:left;
+    font-family:'NanumSquareRound', sans-serif;
+    font-size:11px;
+    color:#fff;
+    background:var(--ledger-green);
+    padding:9px 10px;
+  }
+  table.data-table td{
+    padding:10px 10px;
+    border-bottom:1px solid var(--line);
+    font-size:13px;
+    vertical-align:top;
+  }
+  table.data-table tr:hover td{background:var(--paper-2);}
+  .row-del{border:none; background:none; color:#C7BEA3; cursor:pointer; font-size:15px;}
+  .row-del:hover{color:var(--red-ink);}
+
+  ::-webkit-scrollbar{width:9px; height:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:5px;}
+
+  /* ---------- Day events hover popup ---------- */
+  .day-events-popup{
+    display:none;
+    position:fixed;
+    z-index:900;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 14px 40px rgba(74,64,48,0.22);
+    padding:14px 16px;
+    width:220px;
+    max-height:260px;
+    overflow-y:auto;
+  }
+  .day-events-popup.open{display:block;}
+  .day-events-popup-date{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ledger-green-dk);
+    margin-bottom:10px;
+    padding-bottom:8px;
+    border-bottom:1px dashed var(--line);
+  }
+  .day-events-popup-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .day-events-popup-item{
+    cursor:pointer;
+    padding:6px 8px;
+    border-radius:7px;
+    background:var(--amber-soft);
+  }
+  .day-events-popup-item:hover{background:var(--amber);}
+  .day-events-popup-title{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--amber-deep);
+    line-height:1.35;
+  }
+  .day-events-popup-meta{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+
+  /* ---------- Subject management ---------- */
+  .subject-manage-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    max-height:220px;
+    overflow-y:auto;
+  }
+  .subject-manage-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:9px 10px;
+    border-bottom:1px dashed var(--line);
+    font-size:13px;
+  }
+  .subject-manage-item:last-child{border-bottom:none;}
+  .subject-manage-name{display:flex; align-items:center; gap:7px;}
+  .subject-special-badge{
+    font-size:10px;
+    font-weight:700;
+    padding:2px 7px;
+    border-radius:10px;
+    background:var(--special-yellow);
+    color:var(--special-yellow-text);
+  }
+  .subject-special-check{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    padding:0 4px;
+  }
+  .subject-special-check input{width:15px; height:15px; accent-color:var(--special-yellow-text);}
+  .subject-manage-del{
+    border:none;
+    background:none;
+    color:#C7BEA3;
+    cursor:pointer;
+    font-size:15px;
+  }
+  .subject-manage-del:hover{color:var(--red-ink);}
+
+  /* ---------- Cell subject popup ---------- */
+  .cell-subject-popup{
+    display:none;
+    position:fixed;
+    z-index:900;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 14px 40px rgba(74,64,48,0.22);
+    padding:16px 18px;
+    width:240px;
+  }
+  .cell-subject-popup.open{display:block;}
+  .cell-subject-popup-title{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ledger-green-dk);
+    margin-bottom:10px;
+    padding-bottom:8px;
+    border-bottom:1px dashed var(--line);
+  }
+  .cell-subject-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    max-height:120px;
+    overflow-y:auto;
+    margin-bottom:6px;
+  }
+  .subject-chip{
+    font-size:12px;
+    font-weight:700;
+    padding:6px 11px;
+    border-radius:16px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .subject-chip:hover{background:var(--amber-soft);}
+  .subject-chip.selected{background:var(--amber); border-color:var(--amber); color:#5C4423;}
+  .cell-subject-popup-foot{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:14px;
+  }
+
+  /* ---------- Event detail modal ---------- */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(74,64,48,0.32);
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+    padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:var(--white);
+    border-radius:14px;
+    width:380px;
+    max-width:100%;
+    padding:24px 26px;
+    box-shadow:0 18px 50px rgba(74,64,48,0.25);
+  }
+  .modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+    padding-bottom:12px;
+    border-bottom:1px dashed var(--line);
+  }
+  .modal-head-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .modal-date{
+    font-family:'NanumSquareRound', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--ledger-green-dk);
+  }
+  .modal-close{
+    border:none;
+    background:none;
+    font-size:20px;
+    line-height:1;
+    color:var(--ink-soft);
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .modal-close:hover{color:var(--red-ink);}
+  .modal-label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin:14px 0 5px;
+  }
+  .modal-label:first-of-type{margin-top:0;}
+  .modal-input, .modal-textarea{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:9px 11px;
+    font-size:13.5px;
+    font-family:'NanumSquareRound', sans-serif;
+    background:var(--paper);
+  }
+  .modal-input:focus, .modal-textarea:focus{outline:2px solid var(--amber-soft);}
+  .modal-textarea{min-height:72px; resize:vertical;}
+  .modal-foot{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:20px;
+  }
+  #eventModalDelete.confirm-armed, #evalPlanPopupDelete.confirm-armed{
+    background:var(--red-ink);
+    border-color:var(--red-ink);
+    color:#fff;
+    font-weight:700;
+  }
+
+  @media (max-width:900px){
+    body{flex-direction:column;}
+    .sidebar{width:100%; min-height:auto; position:relative;}
+    nav.nav-list{flex-direction:row; overflow-x:auto;}
+    .dash-grid-top, .dash-grid-bottom, .students-layout{grid-template-columns:1fr;}
+    main{padding:24px 18px 40px;}
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">학급 종합 대시보드</div>
+    <div class="brand-sub" id="sidebarMeta">기록을 한눈에</div>
+  </div>
+  <nav class="nav-list">
+    <div class="nav-item active" data-page="dashboard"><span class="num">01</span>대시보드</div>
+    <div class="nav-item" data-page="students"><span class="num">02</span>학생 출결·기록</div>
+    <div class="nav-item" data-page="parents"><span class="num">03</span>학부모 상담</div>
+    <div class="nav-item" data-page="eval"><span class="num">04</span>학생 평가</div>
+  </nav>
+
+  <div class="sidebar-divider" style="margin:14px 12px 10px;"></div>
+  <div class="class-archive-list" id="classArchiveList"></div>
+  <button type="button" class="class-archive-add-btn" id="classArchiveAddBtn">+ 새로운 반 추가</button>
+
+  <button type="button" class="sidebar-db-btn" id="studentDbBtn">학생 데이터베이스</button>
+
+  <div class="sidebar-divider"></div>
+
+  <div id="userInfo" class="user-info" style="display:none;">로그인이 필요합니다.</div>
+  <button type="button" id="authBtn" class="auth-btn sidebar-auth-btn">Google 계정으로 로그인</button>
+  <div id="syncStatus" class="sync-status" style="display:none;">로컬 모드로 작동 중</div>
+  <div class="sidebar-foot" id="sidebarFootNote" style="display:none;">DATA SAVED LOCALLY<br>이 브라우저에만 저장됩니다</div>
+</aside>
+
+<main>
+
+  <!-- ================= DASHBOARD ================= -->
+  <section class="page active" id="page-dashboard">
+    <h1 class="page-title">학급 대시보드</h1>
+    <div class="meta-row" id="metaEditRow">
+      <div class="meta-field">
+        <label>연도</label>
+        <input type="text" id="metaYear" placeholder="2026">
+      </div>
+      <span class="meta-divider">·</span>
+      <div class="meta-field">
+        <label>학년</label>
+        <input type="text" id="metaGrade" placeholder="5학년">
+      </div>
+      <div class="meta-field">
+        <label>반</label>
+        <input type="text" id="metaClass" placeholder="3반">
+      </div>
+      <button type="button" class="btn amber" id="metaSetBtn">설정</button>
+    </div>
+
+    <div class="meta-row meta-confirmed-row" id="metaConfirmedRow" style="display:none;">
+      <div class="meta-confirmed-text" id="metaConfirmedText">-</div>
+      <button type="button" class="meta-edit-btn" id="metaEditBtn">수정</button>
+    </div>
+
+    <div class="dash-grid-top">
+      <div class="card card-calendar">
+        <div class="cal-head">
+          <div class="cal-title" id="calTitle">-</div>
+          <div class="cal-nav">
+            <button class="cal-btn" id="calPrev">‹</button>
+            <button class="cal-btn" id="calToday">•</button>
+            <button class="cal-btn" id="calNext">›</button>
+          </div>
+        </div>
+        <table class="cal-table">
+          <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
+          <tbody id="calBody" data-kind="schedule"></tbody>
+        </table>
+      </div>
+
+      <div class="card card-timetable">
+        <div class="tt-head">
+          <h2 class="block-title" style="margin:0;">시간표</h2>
+          <div class="tt-head-actions">
+            <button type="button" class="btn ghost" id="subjectsBtn">과목</button>
+            <div class="week-select-wrap" id="weekSelectWrap">
+              <button type="button" class="week-select-btn" id="weekSelectBtn">
+                <span id="weekSelectBtnLabel">주 선택</span><span class="caret">▾</span>
+              </button>
+              <div class="week-select-panel" id="weekSelectPanel">
+                <div class="week-option-list" id="weekOptionList"></div>
+                <button type="button" class="week-add-btn" id="weekAddBtn">+ 새로운 주 추가</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="timetable-wrap">
+          <table class="tt-table" id="ttTable">
+            <thead>
+              <tr>
+                <th class="period-col">교시</th>
+                <th>월</th><th>화</th><th>수</th><th>목</th><th>금</th>
+              </tr>
+            </thead>
+            <tbody id="ttBody"></tbody>
+          </table>
+        </div>
+        <div class="tt-notes">
+          <div class="section-label" style="margin-top:16px;">이번 주 특이사항</div>
+          <textarea id="weekNotes" class="tt-notes-textarea" placeholder="이번 주에 기억해둘 특이사항을 적어보세요"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-grid-bottom">
+      <div class="card">
+        <div class="section-label">오늘</div>
+        <h2 class="block-title" style="margin-bottom:2px;">기록 건수</h2>
+        <div class="stat-num" id="todayCount">0</div>
+        <div class="stat-cap" id="todayDateLabel">-</div>
+        <div class="stat-breakdown">
+          <div><span>학생 기록</span><b id="cntStudentRecord">0</b></div>
+          <div><span>학부모 상담</span><b id="cntParent">0</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="block-title">일정</h2>
+        <div class="schedule-add-form" id="scheduleAddForm">
+          <div class="schedule-add-row1">
+            <button type="button" class="btn ghost" id="repeatToggleBtn">반복</button>
+            <select id="scheduleTypeSelect" class="schedule-type-select">
+              <option value="">없음</option>
+              <option value="긴급">긴급</option>
+              <option value="수업" selected>수업</option>
+              <option value="업무">업무</option>
+              <option value="회의">회의</option>
+              <option value="상담">상담</option>
+              <option value="출장">출장</option>
+              <option value="연수">연수</option>
+            </select>
+            <input type="date" id="scheduleDate" title="시작일">
+            <span class="date-tilde" id="dateTilde" style="display:none;">~</span>
+            <input type="date" id="scheduleEndDate" style="display:none;" title="종료일">
+          </div>
+          <div class="schedule-add-row2">
+            <input type="text" id="scheduleText" placeholder="일정 내용 입력">
+            <button class="btn amber" id="scheduleAddBtn">추가</button>
+          </div>
+        </div>
+        <ul class="schedule-list" id="scheduleList" style="margin-top:14px;"></ul>
+      </div>
+
+      <div class="card">
+        <h2 class="block-title">체크리스트</h2>
+        <div class="inline-add" style="margin-top:0;">
+          <input type="date" id="checklistDeadline">
+          <select id="checklistType">
+            <option value="학급·학년">학급·학년</option>
+            <option value="업무">업무</option>
+          </select>
+          <input type="text" id="checklistText" placeholder="할 일 입력 후 Enter">
+          <button class="btn" id="checklistAddBtn">추가</button>
+        </div>
+        <div class="checklist-columns">
+          <div class="checklist-col">
+            <div class="checklist-col-title">학급·학년</div>
+            <ul class="checklist" id="checklistClassCol"></ul>
+          </div>
+          <div class="checklist-col">
+            <div class="checklist-col-title">업무</div>
+            <ul class="checklist" id="checklistWorkCol"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="page-copyright">Copyright 2026. ook All rights reserved</div>
+  </section>
+
+  <!-- ================= STUDENTS ================= -->
+  <section class="page" id="page-students">
+    <h1 class="page-title">학생 출결·기록</h1>
+    <div class="meta-row" style="margin-bottom:22px;">
+      <span style="font-size:13px; color:var(--ink-soft);">학생별 출결 상황과 관찰 및 상담 기록을 관리합니다.</span>
+    </div>
+
+    <div class="dash-grid-top" style="margin-bottom:28px;">
+      <div class="card card-calendar">
+        <div class="cal-head">
+          <div class="cal-title" id="calTitle2">-</div>
+          <div class="cal-nav">
+            <button class="cal-btn" id="calPrev2">‹</button>
+            <button class="cal-btn" id="calToday2">•</button>
+            <button class="cal-btn" id="calNext2">›</button>
+          </div>
+        </div>
+        <table class="cal-table">
+          <thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead>
+          <tbody id="calBody2" data-kind="attendance"></tbody>
+        </table>
+      </div>
+
+      <div class="card card-timetable">
+        <h2 class="block-title">출결 상황</h2>
+        <div class="attendance-row1">
+          <select id="attStudentSelect"></select>
+          <select id="attTypeSelect">
+            <option value="결석">결석</option>
+            <option value="조퇴">조퇴</option>
+            <option value="지각">지각</option>
+            <option value="현장체험학습">현장체험학습</option>
+            <option value="결과">결과</option>
+          </select>
+          <select id="attCategorySelect">
+            <option value="질병">질병</option>
+            <option value="미인정">미인정</option>
+            <option value="기타">기타</option>
+            <option value="출석인정">출석인정</option>
+          </select>
+        </div>
+        <div class="schedule-add-row1" style="margin-top:8px;">
+          <button type="button" class="btn ghost" id="attRepeatToggleBtn">반복</button>
+          <input type="date" id="attDate" title="날짜">
+          <span class="date-tilde" id="attDateTilde" style="display:none;">~</span>
+          <input type="date" id="attEndDate" style="display:none;" title="종료일">
+          <button class="btn amber" id="attAddBtn">추가</button>
+        </div>
+        <div class="attendance-table-wrap">
+          <table class="data-table attendance-table">
+            <thead>
+              <tr>
+                <th>날짜</th><th>이름</th><th>구분·유형</th><th>나이스</th><th>보고서</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="studentRecordsCard">
+      <div class="tt-head">
+        <div class="record-title-group">
+          <h2 class="block-title" style="margin:0;">학생 기록</h2>
+          <select id="recNewStudentSelect"></select>
+          <button class="btn amber" id="recAddBtn">추가</button>
+        </div>
+        <div class="record-date-filter">
+          <button type="button" class="btn ghost" id="allRecordsBtn">전체 기록</button>
+          <label>기록일자 :</label>
+          <input type="date" id="recordFilterDate">
+        </div>
+      </div>
+
+      <div id="studentRecordBlocks" style="margin-top:18px;"></div>
+    </div>
+
+<div class="modal-overlay" id="allRecordsModalOverlay">
+  <div class="modal-box" id="allRecordsModalBox">
+    <div class="modal-head">
+      <div class="modal-date">전체 기록</div>
+      <div class="modal-head-actions">
+        <button class="btn ghost" id="allRecordsPdfBtn">PDF 저장</button>
+        <button class="modal-close" id="allRecordsModalClose" aria-label="닫기">×</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="all-records-filters">
+        <select id="allRecordsStudentFilter"></select>
+        <select id="allRecordsMonthFilter"></select>
+      </div>
+      <div class="all-records-table-wrap">
+        <table class="data-table all-records-table">
+          <thead>
+            <tr><th>날짜</th><th>학생</th><th>교시</th><th>과목</th><th>유형</th><th>내용</th><th>지도 및 계획</th></tr>
+          </thead>
+          <tbody id="allRecordsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="recordDeleteConfirmOverlay">
+  <div class="modal-box" style="width:300px;">
+    <div class="modal-head">
+      <div class="modal-date">기록 삭제</div>
+      <button class="modal-close" id="recordDeleteConfirmClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0; font-size:13.5px; color:var(--ink); line-height:1.6;">정말로 이 기록을 삭제하시겠습니까?</p>
+    </div>
+    <div class="modal-foot" style="justify-content:flex-end; gap:8px;">
+      <button class="btn ghost" id="recordDeleteCancelBtn">취소</button>
+      <button class="btn" id="recordDeleteConfirmBtn" style="background:#9E2B1E;">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="rec-type-popup" id="recTypePopup">
+  <div class="rec-type-popup-list" id="recTypePopupList"></div>
+</div>
+  <div class="page-copyright">Copyright 2026. ook All rights reserved</div>
+  </section>
+
+  <!-- ================= PARENTS ================= -->
+  <section class="page" id="page-parents">
+    <h1 class="page-title">학부모 상담</h1>
+    <div class="meta-row" style="margin-bottom:10px;">
+      <span style="font-size:13px; color:var(--ink-soft);">학부모 상담 이력을 기록합니다.</span>
+    </div>
+
+    <div class="card">
+      <h2 class="block-title">상담 내용</h2>
+      <div class="form-row">
+        <input type="date" id="pcDate">
+        <select id="pcStudent"></select>
+        <select id="pcRelation">
+          <option value="엄마">엄마</option>
+          <option value="아빠">아빠</option>
+          <option value="할머니">할머니</option>
+          <option value="할아버지">할아버지</option>
+          <option value="기타">기타</option>
+        </select>
+        <input type="text" id="pcRelationOther" placeholder="관계 입력" style="display:none;">
+        <select id="pcMethod">
+          <option value="전화">전화</option>
+          <option value="방문">방문</option>
+          <option value="하이톡">하이톡</option>
+          <option value="기타">기타</option>
+        </select>
+        <input type="text" id="pcMethodOther" placeholder="방식 입력" style="display:none;">
+      </div>
+      <textarea id="pcContent" class="pc-content-textarea" placeholder="상담 내용을 입력하세요"></textarea>
+      <div class="form-row" style="margin-top:8px;">
+        <textarea id="pcFollowup" class="pc-content-textarea" placeholder="후속 조치 (선택)" style="flex:1; min-height:44px;"></textarea>
+      </div>
+      <div style="text-align:right;">
+        <button class="btn amber" id="pcAddBtn">상담 기록 추가</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2 class="block-title">상담 이력</h2>
+      <table class="data-table pc-table">
+        <thead><tr><th>날짜</th><th>학생</th><th>방법</th><th>내용</th><th>후속 조치</th><th></th></tr></thead>
+        <tbody id="pcTableBody"></tbody>
+      </table>
+      <div class="empty-note" id="pcEmpty" style="display:none;">아직 등록된 상담 기록이 없습니다.</div>
+    </div>
+  <div class="page-copyright">Copyright 2026. ook All rights reserved</div>
+  </section>
+
+  <!-- ================= EVAL ================= -->
+  <section class="page" id="page-eval">
+    <h1 class="page-title">학생 평가</h1>
+    <div class="meta-row" style="margin-bottom:10px;">
+      <span style="font-size:13px; color:var(--ink-soft);">과목별·영역별 평가 결과를 기록합니다.</span>
+    </div>
+
+    <div class="card">
+      <h2 class="block-title">평가 계획</h2>
+      <div class="form-row">
+        <select id="evalPlanSubject"></select>
+        <input type="text" id="evalPlanUnit" placeholder="단원" style="flex:1.6; min-width:160px;">
+        <input type="text" id="evalPlanItem" placeholder="평가 항목" style="flex:1.6; min-width:160px;">
+        <button class="btn amber" id="evalPlanAddBtn">추가</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2 class="block-title">평가 이력</h2>
+      <div class="eval-subject-buttons" id="evalSubjectButtons"></div>
+      <div id="evalSubjectTables" style="margin-top:16px;"></div>
+    </div>
+  <div class="page-copyright">Copyright 2026. ook All rights reserved</div>
+  </section>
+
+<div class="eval-plan-popup" id="evalPlanPopup">
+  <div class="modal-label" style="margin-top:0;">과목</div>
+  <input type="text" id="evalPlanPopupSubject" class="modal-input" disabled>
+  <div class="modal-label">단원</div>
+  <input type="text" id="evalPlanPopupUnit" class="modal-input">
+  <div class="modal-label">평가 항목</div>
+  <input type="text" id="evalPlanPopupItem" class="modal-input">
+  <div style="display:flex; justify-content:space-between; margin-top:14px;">
+    <button class="btn ghost" id="evalPlanPopupDelete">삭제</button>
+    <button class="btn amber" id="evalPlanPopupSave">저장</button>
+  </div>
+</div>
+
+</main>
+
+<div class="day-events-popup" id="dayEventsPopup">
+  <div class="day-events-popup-date" id="dayEventsPopupDate">-</div>
+  <div class="day-events-popup-list" id="dayEventsPopupList"></div>
+</div>
+
+<div class="modal-overlay" id="eventModalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-date" id="eventModalDate">-</div>
+      <button class="modal-close" id="eventModalClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label">제목</label>
+      <input type="text" id="eventModalTitle" class="modal-input">
+
+      <label class="modal-label">유형</label>
+      <select id="eventModalType" class="modal-input">
+        <option value="">없음</option>
+        <option value="긴급">긴급</option>
+        <option value="수업">수업</option>
+        <option value="업무">업무</option>
+        <option value="회의">회의</option>
+        <option value="상담">상담</option>
+        <option value="출장">출장</option>
+        <option value="연수">연수</option>
+      </select>
+
+      <label class="modal-label">시간</label>
+      <input type="text" id="eventModalTime" class="modal-input" placeholder="예: 10:00 ~ 11:00">
+
+      <label class="modal-label">장소</label>
+      <input type="text" id="eventModalPlace" class="modal-input" placeholder="장소를 입력하세요">
+
+      <label class="modal-label">메모</label>
+      <textarea id="eventModalMemo" class="modal-textarea" placeholder="메모를 입력하세요"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="eventModalDelete">일정 삭제</button>
+      <button class="btn amber" id="eventModalSave">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="attMemoModalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-date" id="attMemoModalHeader">-</div>
+      <button class="modal-close" id="attMemoModalClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label" style="margin-top:0;">메모</label>
+      <textarea id="attMemoModalText" class="modal-textarea" placeholder="메모를 입력하세요"></textarea>
+    </div>
+    <div class="modal-foot" style="justify-content:flex-end; gap:8px;">
+      <button class="btn amber" id="attMemoModalSave">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="classArchiveConfirmOverlay">
+  <div class="modal-box" style="width:320px;">
+    <div class="modal-head">
+      <div class="modal-date" id="classArchiveConfirmTitle">새로운 반 추가</div>
+      <button class="modal-close" id="classArchiveConfirmClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0; font-size:13.5px; color:var(--ink); line-height:1.6;" id="classArchiveConfirmText">
+        현재 반의 데이터는 안전하게 보관되고, 새로운 반을 처음부터 설정할 수 있는 빈 화면으로 전환됩니다. 계속할까요?
+      </p>
+    </div>
+    <div class="modal-foot" style="justify-content:flex-end; gap:8px;">
+      <button class="btn ghost" id="classArchiveConfirmCancel">취소</button>
+      <button class="btn amber" id="classArchiveConfirmBtn">계속</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="studentDbModalOverlay">
+  <div class="modal-box" id="studentDbModalBox">
+    <div class="modal-head">
+      <div class="modal-date">학생 데이터베이스</div>
+      <button class="modal-close" id="studentDbModalClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="student-db-add-row">
+        <input type="text" id="dbStudentNumber" placeholder="번호">
+        <input type="text" id="dbStudentName" placeholder="이름">
+        <select id="dbStudentGender">
+          <option value="남">남</option>
+          <option value="여">여</option>
+        </select>
+        <button class="btn amber" id="dbStudentAddBtn">추가</button>
+      </div>
+      <div class="student-db-table-wrap">
+        <table class="data-table student-db-table">
+          <thead><tr><th>번호</th><th>이름</th><th>성별</th><th></th></tr></thead>
+          <tbody id="studentDbTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="weekModalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-date">새로운 주 추가</div>
+      <button class="modal-close" id="weekModalClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label">몇 번째 주</label>
+      <input type="number" min="1" id="weekModalNumber" class="modal-input" placeholder="예: 3">
+
+      <label class="modal-label">시작일</label>
+      <input type="date" id="weekModalStart" class="modal-input">
+
+      <label class="modal-label">종료일</label>
+      <input type="date" id="weekModalEnd" class="modal-input">
+    </div>
+    <div class="modal-foot" style="justify-content:flex-end; gap:8px;">
+      <button class="btn ghost" id="weekModalCancel">취소</button>
+      <button class="btn amber" id="weekModalSave">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="subjectsModalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-date">과목 관리</div>
+      <button class="modal-close" id="subjectsModalClose" aria-label="닫기">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="inline-add" style="margin-top:0;">
+        <input type="text" id="subjectInput" placeholder="과목명 입력 후 Enter">
+        <label class="subject-special-check">
+          <input type="checkbox" id="subjectSpecialCheck">전담
+        </label>
+        <button class="btn amber" id="subjectAddBtn">추가</button>
+      </div>
+      <div class="subject-manage-list" id="subjectManageList" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="cell-subject-popup" id="cellSubjectPopup">
+  <div class="cell-subject-popup-title">과목 선택</div>
+  <div class="cell-subject-list" id="cellSubjectList"></div>
+  <label class="modal-label" style="margin-top:6px;">직접 입력</label>
+  <input type="text" id="cellSubjectCustom" class="modal-input" placeholder="등록된 과목이 없다면 직접 입력">
+  <label class="modal-label">페이지</label>
+  <input type="text" id="cellSubjectPage" class="modal-input" placeholder="예: 12쪽">
+  <label class="modal-label">장소</label>
+  <input type="text" id="cellSubjectPlace" class="modal-input" placeholder="예: 교실, 운동장">
+  <div class="cell-subject-popup-foot">
+    <button class="btn ghost" id="cellSubjectClear">비우기</button>
+    <button class="btn amber" id="cellSubjectSave">저장</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const STORE_KEY = "classDashboardData_v1";
+  const todayStr = () => new Date().toISOString().slice(0,10);
+
+  function getDefaultData(){
+    return {
+      meta:{ year:"", grade:"", className:"", confirmed:false },
+      timetable:[["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+      schedule:[],
+      studentSchedule:[],
+      checklist:[],
+      students:[],
+      parentConsults:[],
+      evaluations:[],
+      evalPlans:[],
+      evalResults:[],
+      subjects:[],
+      calYear: new Date().getFullYear(),
+      calMonth: new Date().getMonth(),
+      calYear2: new Date().getFullYear(),
+      calMonth2: new Date().getMonth(),
+      timetableWeeks: [],
+      currentWeekId: null,
+      classArchives: []
+    };
+  }
+  function loadData(){
+    let raw;
+    try{ raw = JSON.parse(localStorage.getItem(STORE_KEY)); }catch(e){ raw = null; }
+    if(!raw) raw = {};
+    return Object.assign(getDefaultData(), raw);
+  }
+  let data = loadData();
+  window.data = data; // shared reference so the Firebase sync layer can read/merge the same object
+  // schedule type metadata: soft pastel colors for each category
+  const SCHEDULE_TYPES = {
+    "": { bg:"var(--amber-soft)", text:"var(--amber-deep)" },
+    "긴급": { bg:"#F6CFC9", text:"#8B3A2E" },
+    "수업": { bg:"#F9DDBB", text:"#8A5A20" },
+    "업무": { bg:"#F7EFB8", text:"#7A6A1E" },
+    "회의": { bg:"#CCE6C4", text:"#3E6B39" },
+    "상담": { bg:"#C9E6F0", text:"#2E6B82" },
+    "출장": { bg:"#CCD8F2", text:"#3A4A8A" },
+    "연수": { bg:"#E0CDEE", text:"#6B3E8A" }
+  };
+  function getScheduleTypeInfo(type){
+    if(type === "") return SCHEDULE_TYPES[""];
+    return SCHEDULE_TYPES[type] || SCHEDULE_TYPES["수업"];
+  }
+  // migrate legacy schedule items ({date, text}) to the new schema
+  data.schedule = (data.schedule || []).map(it=>{
+    if(it.title !== undefined){
+      if(it.type === undefined || it.type === null || (it.type !== "" && !SCHEDULE_TYPES[it.type])) it.type = "수업";
+      return it;
+    }
+    return { id: it.id, title: it.text || "", startDate: it.date, endDate: it.date, time:"", place:"", memo:"", type:"수업" };
+  });
+  // migrate legacy subject list (plain strings) to {name, isSpecial}
+  data.subjects = (data.subjects || []).map(s=>{
+    if(typeof s === "string") return { name: s, isSpecial:false };
+    return { name: s.name || "", isSpecial: !!s.isSpecial };
+  });
+  // migrate legacy checklist items to include deadline/type
+  data.checklist = (data.checklist || []).map(it=>({
+    id: it.id,
+    text: it.text || "",
+    done: !!it.done,
+    deadline: it.deadline || "",
+    type: (it.type === "업무" || it.type === "학급·학년") ? it.type : "학급·학년"
+  }));
+  // migrate legacy student observation/counseling records to the new period/subject/guidance schema
+  data.parentConsults = (data.parentConsults || []).map(r=>({
+    ...r,
+    relation: r.relation || "엄마",
+    relationOther: r.relationOther || "",
+    method: (r.method === "메시지") ? "하이톡" : (r.method || "전화"),
+    methodOther: r.methodOther || ""
+  }));
+  data.students = (data.students || []).map(s=>({
+    ...s,
+    number: s.number !== undefined ? s.number : "",
+    gender: s.gender || "",
+    records: (s.records || []).map(r=>({
+      id: r.id,
+      date: r.date,
+      period: r.period !== undefined ? r.period : "",
+      subject: r.subject !== undefined ? r.subject : "",
+      types: Array.isArray(r.types) ? r.types : (r.type ? [r.type] : []),
+      type: r.type || (Array.isArray(r.types) && r.types[0]) || "",
+      content: r.content !== undefined ? r.content : (r.text || ""),
+      guidance: r.guidance !== undefined ? r.guidance : ""
+    }))
+  }));
+  function save(){
+    localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    if(window.cloudSync) window.cloudSync();
+  }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function toISODate(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+  function mondayFridayOf(d){
+    const day = d.getDay();
+    const diffToMonday = (day===0 ? -6 : 1-day);
+    const monday = new Date(d); monday.setDate(d.getDate()+diffToMonday);
+    const friday = new Date(monday); friday.setDate(monday.getDate()+4);
+    return { start: toISODate(monday), end: toISODate(friday) };
+  }
+  // migrate single flat timetable to the multi-week schema
+  if(!Array.isArray(data.timetableWeeks)){
+    const oldGrid = data.timetable || [];
+    const hasOldContent = oldGrid.some(row => Array.isArray(row) && row.some(cell => (cell||"").trim() !== ""));
+    if(hasOldContent){
+      const range = mondayFridayOf(new Date());
+      const newGrid = [];
+      for(let p=0; p<6; p++){
+        const row = (oldGrid[p] || []).slice(0,5);
+        while(row.length<5) row.push("");
+        newGrid.push(row);
+      }
+      data.timetableWeeks = [{ id: uid(), weekNumber: 1, startDate: range.start, endDate: range.end, grid: newGrid, notes:"" }];
+      data.currentWeekId = data.timetableWeeks[0].id;
+    } else {
+      data.timetableWeeks = [];
+      data.currentWeekId = null;
+    }
+    delete data.timetable;
+  }
+  if(data.timetableWeeks.length===0){
+    data.currentWeekId = null;
+  } else if(!data.currentWeekId || !data.timetableWeeks.some(w=>w.id===data.currentWeekId)){
+    data.currentWeekId = data.timetableWeeks[0].id;
+  }
+  function getCurrentWeek(){
+    if(!data.timetableWeeks.length) return null;
+    return data.timetableWeeks.find(w=>w.id===data.currentWeekId) || data.timetableWeeks[0];
+  }
+  function formatWeekLabel(week){
+    const fmt = (iso)=>{ const [y,m,d]=iso.split("-"); return `${m}.${d}.`; };
+    return `${week.weekNumber}주 (${fmt(week.startDate)}~${fmt(week.endDate)})`;
+  }
+  function normalizeCell(raw){
+    if(!raw) return { text:"", page:"", place:"" };
+    if(typeof raw === "string") return { text: raw, page:"", place:"" };
+    return { text: raw.text||"", page: raw.page||"", place: raw.place||"" };
+  }
+
+  /* ---------------- Navigation ---------------- */
+  const navItems = document.querySelectorAll(".nav-item");
+  const pages = document.querySelectorAll(".page");
+  navItems.forEach(item=>{
+    item.addEventListener("click", ()=>{
+      navItems.forEach(n=>n.classList.remove("active"));
+      item.classList.add("active");
+      pages.forEach(p=>p.classList.remove("active"));
+      document.getElementById("page-"+item.dataset.page).classList.add("active");
+      if(item.dataset.page === "parents") renderParentSelect();
+      if(item.dataset.page === "eval"){ renderEvalPlanSubjectOptions(); renderEvalSubjectButtons(); renderEvalSubjectTable(); }
+      if(item.dataset.page === "students"){ renderAttendanceStudentOptions(); renderRecordStudentOptions(); renderStudentRecordBlocks(); }
+    });
+  });
+
+  /* ---------------- Meta (year / grade / class) ---------------- */
+  const metaYear = document.getElementById("metaYear");
+  const metaGrade = document.getElementById("metaGrade");
+  const metaClass = document.getElementById("metaClass");
+  const metaEditRow = document.getElementById("metaEditRow");
+  const metaConfirmedRow = document.getElementById("metaConfirmedRow");
+  const metaConfirmedText = document.getElementById("metaConfirmedText");
+
+  function withSuffix(val, suffix){
+    if(!val) return "";
+    return val.includes(suffix) ? val : val + suffix;
+  }
+  function formatMetaLabelFor(meta){
+    const year = meta.year ? `${meta.year}년` : "";
+    const grade = withSuffix(meta.grade, "학년");
+    const cls = withSuffix(meta.className, "반");
+    return [year, grade, cls].filter(Boolean).join(" ") || "학급 정보 미설정";
+  }
+  function formatMetaLabel(){
+    return formatMetaLabelFor(data.meta);
+  }
+  function updateSidebarMeta(){
+    const hasAny = data.meta.year || data.meta.grade || data.meta.className;
+    document.getElementById("sidebarMeta").textContent = hasAny ? formatMetaLabel() : "기록을 한눈에";
+  }
+  function showMetaConfirmed(){
+    metaEditRow.style.display = "none";
+    metaConfirmedRow.style.display = "flex";
+    metaConfirmedText.textContent = formatMetaLabel();
+  }
+  function showMetaEdit(){
+    metaEditRow.style.display = "flex";
+    metaConfirmedRow.style.display = "none";
+  }
+  function loadMeta(){
+    metaYear.value = data.meta.year;
+    metaGrade.value = data.meta.grade;
+    metaClass.value = data.meta.className;
+    updateSidebarMeta();
+    if(data.meta.confirmed && (data.meta.year || data.meta.grade || data.meta.className)){
+      showMetaConfirmed();
+    } else {
+      showMetaEdit();
+    }
+  }
+  [metaYear, metaGrade, metaClass].forEach(el=>{
+    el.addEventListener("input", ()=>{
+      data.meta.year = metaYear.value;
+      data.meta.grade = metaGrade.value;
+      data.meta.className = metaClass.value;
+      save();
+      updateSidebarMeta();
+    });
+  });
+  document.getElementById("metaSetBtn").addEventListener("click", ()=>{
+    data.meta.confirmed = true;
+    save();
+    updateSidebarMeta();
+    showMetaConfirmed();
+  });
+  document.getElementById("metaEditBtn").addEventListener("click", ()=>{
+    data.meta.confirmed = false;
+    save();
+    showMetaEdit();
+  });
+
+  /* ---------------- Class archive (multi-year switching) ---------------- */
+  const classArchiveList = document.getElementById("classArchiveList");
+  const classArchiveConfirmOverlay = document.getElementById("classArchiveConfirmOverlay");
+  const classArchiveConfirmTitle = document.getElementById("classArchiveConfirmTitle");
+  const classArchiveConfirmText = document.getElementById("classArchiveConfirmText");
+  let pendingClassArchiveAction = null;
+
+  function buildCurrentDataSnapshot(){
+    const clone = JSON.parse(JSON.stringify(data));
+    delete clone.classArchives;
+    return clone;
+  }
+  function renderClassArchiveList(){
+    const archives = data.classArchives || [];
+    classArchiveList.innerHTML = archives.map(a=>`
+      <div class="class-archive-item" data-id="${a.id}">
+        <span class="class-archive-item-label">${escapeHtml(a.label)}</span>
+        <button type="button" class="class-archive-item-del" data-id="${a.id}">×</button>
+      </div>
+    `).join("");
+    classArchiveList.querySelectorAll(".class-archive-item").forEach(item=>{
+      item.addEventListener("click", (e)=>{
+        if(e.target.closest(".class-archive-item-del")) return;
+        const targetLabel = item.querySelector(".class-archive-item-label").textContent;
+        openClassArchiveConfirm(
+          "반 전환",
+          `현재 '${formatMetaLabel()}' 데이터는 보관되고, '${targetLabel}' 데이터를 불러옵니다. 계속할까요?`,
+          ()=> switchToArchivedClass(item.dataset.id)
+        );
+      });
+    });
+    classArchiveList.querySelectorAll(".class-archive-item-del").forEach(btn=>{
+      btn.addEventListener("click", function handler(e){
+        e.stopPropagation();
+        if(!btn.classList.contains("confirm-armed")){
+          btn.classList.add("confirm-armed");
+          btn.textContent = "?";
+          return;
+        }
+        data.classArchives = (data.classArchives||[]).filter(a=>a.id!==btn.dataset.id);
+        save();
+        renderClassArchiveList();
+      });
+    });
+  }
+  function openClassArchiveConfirm(title, text, onConfirm){
+    classArchiveConfirmTitle.textContent = title;
+    classArchiveConfirmText.textContent = text;
+    pendingClassArchiveAction = onConfirm;
+    classArchiveConfirmOverlay.classList.add("open");
+  }
+  function closeClassArchiveConfirm(){
+    classArchiveConfirmOverlay.classList.remove("open");
+    pendingClassArchiveAction = null;
+  }
+  document.getElementById("classArchiveConfirmClose").addEventListener("click", closeClassArchiveConfirm);
+  document.getElementById("classArchiveConfirmCancel").addEventListener("click", closeClassArchiveConfirm);
+  classArchiveConfirmOverlay.addEventListener("click", (e)=>{
+    if(e.target === classArchiveConfirmOverlay) closeClassArchiveConfirm();
+  });
+  document.getElementById("classArchiveConfirmBtn").addEventListener("click", ()=>{
+    const action = pendingClassArchiveAction;
+    closeClassArchiveConfirm();
+    if(action) action();
+  });
+
+  function archiveCurrentAndReset(){
+    const label = formatMetaLabel();
+    const snapshot = buildCurrentDataSnapshot();
+    const archives = data.classArchives || [];
+    archives.unshift({ id: uid(), label, savedAt: new Date().toISOString(), snapshot });
+    Object.keys(data).forEach(k=> delete data[k]);
+    Object.assign(data, getDefaultData(), { classArchives: archives });
+    save();
+    renderClassArchiveList();
+    renderEverything();
+  }
+  function switchToArchivedClass(archiveId){
+    const archives = data.classArchives || [];
+    const idx = archives.findIndex(a=>a.id===archiveId);
+    if(idx===-1) return;
+    const target = archives[idx];
+    const currentLabel = formatMetaLabel();
+    const currentSnapshot = buildCurrentDataSnapshot();
+    archives.splice(idx, 1);
+    archives.unshift({ id: uid(), label: currentLabel, savedAt: new Date().toISOString(), snapshot: currentSnapshot });
+    const newCurrent = JSON.parse(JSON.stringify(target.snapshot));
+    Object.keys(data).forEach(k=> delete data[k]);
+    Object.assign(data, newCurrent, { classArchives: archives });
+    save();
+    renderClassArchiveList();
+    renderEverything();
+  }
+  document.getElementById("classArchiveAddBtn").addEventListener("click", ()=>{
+    openClassArchiveConfirm(
+      "새로운 반 추가",
+      `현재 '${formatMetaLabel()}' 데이터는 안전하게 보관되고, 새로운 반을 처음부터 설정할 수 있는 빈 화면으로 전환됩니다. 계속할까요?`,
+      archiveCurrentAndReset
+    );
+  });
+
+  /* ---------------- Calendar ---------------- */
+  const calBody = document.getElementById("calBody");
+  const calTitle = document.getElementById("calTitle");
+  const calBody2 = document.getElementById("calBody2");
+  const calTitle2 = document.getElementById("calTitle2");
+
+  function attCatType(ev){
+    return ev.type === "현장체험학습" ? ev.type : `${ev.category || ""}${ev.type || ""}`;
+  }
+  function attStudentName(ev){
+    const s = data.students.find(x=>x.id===ev.studentId);
+    return s ? s.name : "학생";
+  }
+
+  /* ---------------- Attendance memo popup ---------------- */
+  const attMemoModalOverlay = document.getElementById("attMemoModalOverlay");
+  const attMemoModalHeader = document.getElementById("attMemoModalHeader");
+  const attMemoModalText = document.getElementById("attMemoModalText");
+  let activeAttMemoId = null;
+  function openAttMemoModal(id){
+    const item = data.studentSchedule.find(x=>x.id===id);
+    if(!item) return;
+    activeAttMemoId = id;
+    const dateLabel = item.startDate===item.endDate ? formatFullDate(item.startDate) : `${formatFullDate(item.startDate)} ~ ${formatFullDate(item.endDate)}`;
+    attMemoModalHeader.textContent = `${dateLabel} · ${attStudentName(item)} · ${attCatType(item)}`;
+    attMemoModalText.value = item.memo || "";
+    attMemoModalOverlay.classList.add("open");
+  }
+  function closeAttMemoModal(){
+    attMemoModalOverlay.classList.remove("open");
+    activeAttMemoId = null;
+  }
+  document.getElementById("attMemoModalClose").addEventListener("click", closeAttMemoModal);
+  attMemoModalOverlay.addEventListener("click", (e)=>{
+    if(e.target === attMemoModalOverlay) closeAttMemoModal();
+  });
+  document.getElementById("attMemoModalSave").addEventListener("click", ()=>{
+    const item = data.studentSchedule.find(x=>x.id===activeAttMemoId);
+    if(!item) return;
+    item.memo = attMemoModalText.value.trim();
+    save();
+    closeAttMemoModal();
+  });
+
+  function renderCalendarInto(bodyEl, titleEl, y, m, scheduleArr){
+    if(!bodyEl || !titleEl) return;
+    const kind = bodyEl.dataset.kind || "schedule";
+    titleEl.textContent = y + "년 " + (m+1) + "월";
+    const firstDay = new Date(y, m, 1).getDay();
+    const todayD = new Date();
+    const todayISO = toISODate(todayD);
+
+    // events grouped by every date they occupy (supports multi-day spans)
+    const eventsByDate = {};
+    (scheduleArr || []).forEach(it=>{
+      let cur = new Date(it.startDate + "T00:00:00");
+      const endD = new Date(it.endDate + "T00:00:00");
+      let guard = 0;
+      while(cur <= endD && guard < 366){
+        const iso = toISODate(cur);
+        if(!eventsByDate[iso]) eventsByDate[iso] = [];
+        eventsByDate[iso].push(it);
+        cur.setDate(cur.getDate()+1);
+        guard++;
+      }
+    });
+    // Assign each event a fixed lane (row) for its entire date range, the way Google
+    // Calendar's month view does, so a bar stays on the same row for every day it spans,
+    // even on days where the other overlapping event isn't present.
+    function assignEventLanes(events){
+      const sorted = [...events].sort((a,b)=>{
+        if(a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate);
+        const durA = new Date(a.endDate+"T00:00:00") - new Date(a.startDate+"T00:00:00");
+        const durB = new Date(b.endDate+"T00:00:00") - new Date(b.startDate+"T00:00:00");
+        if(durA !== durB) return durB - durA;
+        return String(a.id).localeCompare(String(b.id));
+      });
+      const laneEnd = [];
+      const laneOf = {};
+      sorted.forEach(ev=>{
+        const start = new Date(ev.startDate+"T00:00:00");
+        const end = new Date(ev.endDate+"T00:00:00");
+        let lane = laneEnd.findIndex(endDate => endDate < start);
+        if(lane === -1){ lane = laneEnd.length; laneEnd.push(end); }
+        else { laneEnd[lane] = end; }
+        laneOf[ev.id] = lane;
+      });
+      return laneOf;
+    }
+    const laneOf = assignEventLanes(scheduleArr || []);
+    bodyEl.eventsByDateCache = eventsByDate;
+
+    let cells = [];
+    for(let i=0;i<42;i++){
+      const dateObj = new Date(y, m, 1 - firstDay + i);
+      cells.push(dateObj);
+    }
+    // trim trailing rows that are entirely outside the month (keep grid to 5 or 6 full rows)
+    while(cells.length > 35 && cells[cells.length-7].getMonth() !== m){
+      cells.splice(cells.length-7, 7);
+    }
+
+    function buildChip(ev, iso, dow){
+      const isFirst = iso === ev.startDate;
+      const isLast = iso === ev.endDate;
+      const rowStart = isFirst || dow===0;
+      const rowEnd = isLast || dow===6;
+      let segClass = "seg-single";
+      if(rowStart && !rowEnd) segClass = "seg-start";
+      else if(!rowStart && rowEnd) segClass = "seg-end";
+      else if(!rowStart && !rowEnd) segClass = "seg-mid";
+      let label, chipBg, chipText;
+      if(kind === "attendance"){
+        const typeInfo = SCHEDULE_TYPES[""];
+        chipBg = typeInfo.bg; chipText = typeInfo.text;
+        label = isFirst ? `${escapeHtml(attStudentName(ev))} ${escapeHtml(attCatType(ev))}` : "&nbsp;";
+      } else {
+        const typeInfo = getScheduleTypeInfo(ev.type);
+        chipBg = typeInfo.bg; chipText = typeInfo.text;
+        label = isFirst ? (ev.type ? `[${escapeHtml(ev.type)}] ${escapeHtml(ev.title)}` : escapeHtml(ev.title)) : "&nbsp;";
+      }
+      return `<div class="cal-event-chip ${segClass}" data-id="${ev.id}" style="--chip-bg:${chipBg}; --chip-text:${chipText};">${label}</div>`;
+    }
+
+    let html = "";
+    for(let r=0; r<cells.length/7; r++){
+      html += "<tr>";
+      for(let c=0;c<7;c++){
+        const dateObj = cells[r*7+c];
+        const iso = toISODate(dateObj);
+        const other = dateObj.getMonth() !== m;
+        const isToday = iso === todayISO;
+        const dow = dateObj.getDay();
+        const dayEvents = eventsByDate[iso] || [];
+        const hasEvents = dayEvents.length > 0;
+        const cls = (other ? "other-month " : "") + (isToday ? "today " : "") + (hasEvents ? "has-events" : "");
+        let eventsHtml = "";
+        if(dayEvents.length){
+          const lane0Ev = dayEvents.find(e=>laneOf[e.id]===0);
+          const lane1Ev = dayEvents.find(e=>laneOf[e.id]===1);
+          const shownCount = (lane0Ev?1:0) + (lane1Ev?1:0);
+          const moreCount = dayEvents.length - shownCount;
+          let parts = "";
+          if(lane1Ev && !lane0Ev){
+            // keep lane1's bar on the same (second) row even though lane0 is empty today
+            parts += `<div class="cal-event-chip-spacer">&nbsp;</div>`;
+            parts += buildChip(lane1Ev, iso, dow);
+          } else {
+            if(lane0Ev) parts += buildChip(lane0Ev, iso, dow);
+            if(lane1Ev) parts += buildChip(lane1Ev, iso, dow);
+          }
+          eventsHtml = `<div class="cal-events">${parts}` +
+            (moreCount>0 ? `<div class="cal-event-more">+${moreCount}건 더보기</div>` : "") +
+            `</div>`;
+        }
+        html += `<td class="${cls.trim()}" data-date="${iso}"><div class="cal-daynum">${dateObj.getDate()}</div>${eventsHtml}</td>`;
+      }
+      html += "</tr>";
+    }
+    bodyEl.innerHTML = html;
+  }
+  function renderCalendar(){
+    renderCalendarInto(calBody, calTitle, data.calYear, data.calMonth, data.schedule);
+    renderCalendarInto(calBody2, calTitle2, data.calYear2, data.calMonth2, data.studentSchedule);
+  }
+  function attachCalendarInteractions(bodyEl){
+    if(!bodyEl) return;
+    const kind = bodyEl.dataset.kind || "schedule";
+    bodyEl.addEventListener("click", (e)=>{
+      const chip = e.target.closest(".cal-event-chip");
+      if(chip){
+        if(kind === "schedule") openEventModal(chip.dataset.id);
+        else if(kind === "attendance") openAttMemoModal(chip.dataset.id);
+      }
+    });
+    bodyEl.addEventListener("mouseover", (e)=>{
+      const chip = e.target.closest(".cal-event-chip");
+      if(!chip) return;
+      const id = chip.dataset.id;
+      bodyEl.querySelectorAll(`.cal-event-chip[data-id="${id}"]`).forEach(el=>el.classList.add("chip-hover"));
+    });
+    bodyEl.addEventListener("mouseout", (e)=>{
+      const chip = e.target.closest(".cal-event-chip");
+      if(!chip) return;
+      const id = chip.dataset.id;
+      const related = e.relatedTarget;
+      // if the pointer moved to another segment of the same event, keep the group highlighted
+      if(related && related.closest && related.closest(`.cal-event-chip[data-id="${id}"]`)) return;
+      bodyEl.querySelectorAll(`.cal-event-chip[data-id="${id}"]`).forEach(el=>el.classList.remove("chip-hover"));
+    });
+    bodyEl.addEventListener("mouseover", (e)=>{
+      const td = e.target.closest("td.has-events");
+      if(td) showDayEventsPopup(td);
+    });
+    bodyEl.addEventListener("mouseout", (e)=>{
+      const td = e.target.closest("td.has-events");
+      if(!td) return;
+      const related = e.relatedTarget;
+      if(related && (td.contains(related) || dayEventsPopup.contains(related))) return;
+      hideDayEventsPopup();
+    });
+  }
+
+  /* Day-events popup for days with 3+ items */
+  const dayEventsPopup = document.getElementById("dayEventsPopup");
+  const dayEventsPopupDate = document.getElementById("dayEventsPopupDate");
+  const dayEventsPopupList = document.getElementById("dayEventsPopupList");
+  let dayPopupKind = "schedule";
+  function showDayEventsPopup(td){
+    const iso = td.dataset.date;
+    const ownerBody = td.closest("tbody");
+    const kind = ownerBody ? (ownerBody.dataset.kind || "schedule") : "schedule";
+    dayPopupKind = kind;
+    const cache = (ownerBody && ownerBody.eventsByDateCache) || {};
+    const events = cache[iso] || [];
+    if(events.length === 0) return;
+    dayEventsPopupDate.textContent = formatFullDate(iso);
+    if(kind === "attendance"){
+      dayEventsPopupList.innerHTML = events.map(ev=>`
+        <div class="day-events-popup-item" data-id="${ev.id}">
+          <div class="day-events-popup-title">${escapeHtml(attStudentName(ev))} ${escapeHtml(attCatType(ev))}</div>
+          ${ev.memo ? `<div class="day-events-popup-meta">${escapeHtml(ev.memo)}</div>` : ""}
+        </div>`).join("");
+    } else {
+      dayEventsPopupList.innerHTML = events.map(ev=>{
+        const meta = [ev.time, ev.place].filter(Boolean).join(" · ");
+        const typeInfo = getScheduleTypeInfo(ev.type);
+        const typeTag = ev.type ? `<span class="schedule-type-tag" style="background:${typeInfo.bg}; color:${typeInfo.text};">${escapeHtml(ev.type)}</span> ` : "";
+        return `<div class="day-events-popup-item" data-id="${ev.id}">
+          <div class="day-events-popup-title">${typeTag}${escapeHtml(ev.title)}</div>
+          ${meta ? `<div class="day-events-popup-meta">${escapeHtml(meta)}</div>` : ""}
+        </div>`;
+      }).join("");
+    }
+    const rect = td.getBoundingClientRect();
+    dayEventsPopup.classList.add("open");
+    const pw = dayEventsPopup.offsetWidth;
+    const ph = dayEventsPopup.offsetHeight;
+    let left = rect.right + 10;
+    if(left + pw > window.innerWidth - 10) left = rect.left - pw - 10;
+    if(left < 10) left = 10;
+    let top = rect.top;
+    if(top + ph > window.innerHeight - 10) top = window.innerHeight - ph - 10;
+    if(top < 10) top = 10;
+    dayEventsPopup.style.left = left + "px";
+    dayEventsPopup.style.top = top + "px";
+  }
+  function hideDayEventsPopup(){
+    dayEventsPopup.classList.remove("open");
+  }
+  attachCalendarInteractions(calBody);
+  attachCalendarInteractions(calBody2);
+  dayEventsPopup.addEventListener("mouseleave", hideDayEventsPopup);
+  dayEventsPopup.addEventListener("click", (e)=>{
+    const item = e.target.closest(".day-events-popup-item");
+    if(!item) return;
+    if(dayPopupKind === "schedule"){ hideDayEventsPopup(); openEventModal(item.dataset.id); }
+    else if(dayPopupKind === "attendance"){ hideDayEventsPopup(); openAttMemoModal(item.dataset.id); }
+  });
+  document.getElementById("calPrev").addEventListener("click", ()=>{
+    data.calMonth--; if(data.calMonth<0){data.calMonth=11; data.calYear--;}
+    save(); renderCalendar();
+  });
+  document.getElementById("calNext").addEventListener("click", ()=>{
+    data.calMonth++; if(data.calMonth>11){data.calMonth=0; data.calYear++;}
+    save(); renderCalendar();
+  });
+  document.getElementById("calToday").addEventListener("click", ()=>{
+    const t = new Date();
+    data.calYear = t.getFullYear(); data.calMonth = t.getMonth();
+    save(); renderCalendar();
+  });
+  if(document.getElementById("calPrev2")){
+    document.getElementById("calPrev2").addEventListener("click", ()=>{
+      data.calMonth2--; if(data.calMonth2<0){data.calMonth2=11; data.calYear2--;}
+      save(); renderCalendar();
+    });
+    document.getElementById("calNext2").addEventListener("click", ()=>{
+      data.calMonth2++; if(data.calMonth2>11){data.calMonth2=0; data.calYear2++;}
+      save(); renderCalendar();
+    });
+    document.getElementById("calToday2").addEventListener("click", ()=>{
+      const t = new Date();
+      data.calYear2 = t.getFullYear(); data.calMonth2 = t.getMonth();
+      save(); renderCalendar();
+    });
+  }
+
+  /* ---------------- Weekly timetable ---------------- */
+  const ttBody = document.getElementById("ttBody");
+  const PERIODS = 6;
+  function renderTimetable(){
+    const week = getCurrentWeek();
+    if(!week){
+      ttBody.innerHTML = `<tr><td class="tt-empty-row" colspan="6">등록된 주가 없습니다. 위의 <strong>+ 새로운 주 추가</strong>를 눌러 시간표를 만들어보세요.</td></tr>`;
+      return;
+    }
+    let html = "";
+    for(let p=0;p<PERIODS;p++){
+      html += `<tr><td class="period-col">${p+1}</td>`;
+      for(let d=0; d<5; d++){
+        const cell = normalizeCell(week.grid[p] && week.grid[p][d]);
+        const subj = cell.text ? data.subjects.find(s=>s.name===cell.text) : null;
+        const specialClass = subj && subj.isSpecial ? " tt-cell-special" : "";
+        const pageLine = cell.page ? `<div class="tt-cell-meta">${escapeHtml(cell.page)}</div>` : "";
+        const placeLine = cell.place ? `<div class="tt-cell-meta">${escapeHtml(cell.place)}</div>` : "";
+        html += `<td class="tt-clickable${specialClass}" data-p="${p}" data-d="${d}">` +
+          (cell.text ? `<div class="tt-cell-subject">${escapeHtml(cell.text)}</div>` : "") +
+          pageLine + placeLine +
+          `</td>`;
+      }
+      html += "</tr>";
+    }
+    ttBody.innerHTML = html;
+    ttBody.querySelectorAll("td.tt-clickable").forEach(td=>{
+      td.addEventListener("click", ()=>{
+        openCellSubjectPopup(td, +td.dataset.p, +td.dataset.d);
+      });
+    });
+  }
+  function escapeHtml(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  /* ---------------- Week notes ---------------- */
+  const weekNotesEl = document.getElementById("weekNotes");
+  function renderWeekNotes(){
+    if(data.weekNotesHeight){
+      weekNotesEl.style.height = data.weekNotesHeight + "px";
+    }
+    const week = getCurrentWeek();
+    if(!week){
+      weekNotesEl.value = "";
+      weekNotesEl.disabled = true;
+      weekNotesEl.placeholder = "먼저 주를 추가해주세요.";
+      return;
+    }
+    weekNotesEl.disabled = false;
+    weekNotesEl.placeholder = "이번 주에 기억해둘 특이사항을 적어보세요";
+    weekNotesEl.value = week.notes || "";
+  }
+  weekNotesEl.addEventListener("blur", ()=>{
+    const week = getCurrentWeek();
+    if(!week) return;
+    week.notes = weekNotesEl.value;
+    save();
+  });
+  // remember the size the user drags the memo box to, and make it the default going forward
+  let weekNotesResizeTimer = null;
+  const weekNotesResizeObserver = new ResizeObserver((entries)=>{
+    for(const entry of entries){
+      const h = Math.round(entry.contentRect.height);
+      if(h > 0 && h !== data.weekNotesHeight){
+        data.weekNotesHeight = h;
+        clearTimeout(weekNotesResizeTimer);
+        weekNotesResizeTimer = setTimeout(()=>save(), 300);
+      }
+    }
+  });
+  weekNotesResizeObserver.observe(weekNotesEl);
+
+  /* ---------------- Week selector for timetable ---------------- */
+  const weekSelectBtn = document.getElementById("weekSelectBtn");
+  const weekSelectBtnLabel = document.getElementById("weekSelectBtnLabel");
+  const weekSelectPanel = document.getElementById("weekSelectPanel");
+  const weekOptionList = document.getElementById("weekOptionList");
+
+  function renderWeekSelector(){
+    const week = getCurrentWeek();
+    weekSelectBtnLabel.textContent = week ? formatWeekLabel(week) : "주 추가";
+    const sorted = [...data.timetableWeeks].sort((a,b)=> a.weekNumber-b.weekNumber || a.startDate.localeCompare(b.startDate));
+    weekOptionList.innerHTML = sorted.length
+      ? sorted.map(w=>`
+        <div class="week-option ${w.id===data.currentWeekId?'active':''}" data-id="${w.id}">
+          <span class="week-option-label">${formatWeekLabel(w)}</span>
+          <button type="button" class="week-option-del" data-id="${w.id}">×</button>
+        </div>
+      `).join("")
+      : `<div class="empty-note" style="padding:8px 4px;">등록된 주가 없습니다.</div>`;
+    weekOptionList.querySelectorAll(".week-option").forEach(opt=>{
+      opt.addEventListener("click", (e)=>{
+        if(e.target.closest(".week-option-del")) return;
+        data.currentWeekId = opt.dataset.id;
+        save();
+        renderWeekSelector();
+        renderTimetable();
+        renderWeekNotes();
+        weekSelectPanel.classList.remove("open");
+      });
+    });
+    weekOptionList.querySelectorAll(".week-option-del").forEach(btn=>{
+      btn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        data.timetableWeeks = data.timetableWeeks.filter(w=>w.id!==btn.dataset.id);
+        if(data.timetableWeeks.length===0){
+          data.currentWeekId = null;
+        } else if(data.currentWeekId === btn.dataset.id){
+          data.currentWeekId = data.timetableWeeks[0].id;
+        }
+        save();
+        renderWeekSelector();
+        renderTimetable();
+        renderWeekNotes();
+      });
+    });
+  }
+  weekSelectBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    weekSelectPanel.classList.toggle("open");
+  });
+  document.addEventListener("click", (e)=>{
+    if(!document.getElementById("weekSelectWrap").contains(e.target)){
+      weekSelectPanel.classList.remove("open");
+    }
+  });
+
+  /* ---------------- Add-new-week modal ---------------- */
+  const weekModalOverlay = document.getElementById("weekModalOverlay");
+  function openWeekModal(){
+    const nextNumber = data.timetableWeeks.reduce((max,w)=>Math.max(max, w.weekNumber), 0) + 1;
+    document.getElementById("weekModalNumber").value = nextNumber;
+    document.getElementById("weekModalStart").value = "";
+    document.getElementById("weekModalEnd").value = "";
+    weekModalOverlay.classList.add("open");
+    weekSelectPanel.classList.remove("open");
+  }
+  function closeWeekModal(){
+    weekModalOverlay.classList.remove("open");
+  }
+  document.getElementById("weekAddBtn").addEventListener("click", openWeekModal);
+  document.getElementById("weekModalClose").addEventListener("click", closeWeekModal);
+  document.getElementById("weekModalCancel").addEventListener("click", closeWeekModal);
+  weekModalOverlay.addEventListener("click", (e)=>{
+    if(e.target === weekModalOverlay) closeWeekModal();
+  });
+  document.getElementById("weekModalSave").addEventListener("click", ()=>{
+    const numVal = parseInt(document.getElementById("weekModalNumber").value, 10);
+    const startVal = document.getElementById("weekModalStart").value;
+    const endVal = document.getElementById("weekModalEnd").value;
+    if(!numVal || !startVal || !endVal) return;
+    const end = endVal >= startVal ? endVal : startVal;
+    const newWeek = {
+      id: uid(),
+      weekNumber: numVal,
+      startDate: startVal,
+      endDate: end,
+      grid: [["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]],
+      notes: ""
+    };
+    data.timetableWeeks.push(newWeek);
+    data.currentWeekId = newWeek.id;
+    save();
+    renderWeekSelector();
+    renderTimetable();
+    renderWeekNotes();
+    closeWeekModal();
+  });
+
+  /* ---------------- Subject management ---------------- */
+  const subjectsModalOverlay = document.getElementById("subjectsModalOverlay");
+  const subjectManageList = document.getElementById("subjectManageList");
+  const subjectInput = document.getElementById("subjectInput");
+  const subjectSpecialCheck = document.getElementById("subjectSpecialCheck");
+
+  function renderSubjectManageList(){
+    if(!data.subjects.length){
+      subjectManageList.innerHTML = `<div class="empty-note">등록된 과목이 없습니다.</div>`;
+      return;
+    }
+    subjectManageList.innerHTML = data.subjects.map((s,i)=>`
+      <div class="subject-manage-item" data-index="${i}">
+        <span class="subject-manage-name">${escapeHtml(s.name)}${s.isSpecial ? `<span class="subject-special-badge">전담</span>` : ""}</span>
+        <button type="button" class="subject-manage-del" data-index="${i}">×</button>
+      </div>
+    `).join("");
+    subjectManageList.querySelectorAll(".subject-manage-del").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        data.subjects.splice(+btn.dataset.index, 1);
+        save();
+        renderSubjectManageList();
+        renderTimetable();
+      });
+    });
+  }
+  function addSubject(){
+    const val = subjectInput.value.trim();
+    if(!val) return;
+    if(!data.subjects.some(s=>s.name===val)){
+      data.subjects.push({ name: val, isSpecial: subjectSpecialCheck.checked });
+    }
+    subjectInput.value = "";
+    subjectSpecialCheck.checked = false;
+    save();
+    renderSubjectManageList();
+    renderTimetable();
+  }
+  document.getElementById("subjectAddBtn").addEventListener("click", addSubject);
+  subjectInput.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){ e.preventDefault(); addSubject(); }
+  });
+  document.getElementById("subjectsBtn").addEventListener("click", ()=>{
+    renderSubjectManageList();
+    subjectsModalOverlay.classList.add("open");
+  });
+  document.getElementById("subjectsModalClose").addEventListener("click", ()=>{
+    subjectsModalOverlay.classList.remove("open");
+  });
+  subjectsModalOverlay.addEventListener("click", (e)=>{
+    if(e.target === subjectsModalOverlay) subjectsModalOverlay.classList.remove("open");
+  });
+
+  /* ---------------- Cell subject popup ---------------- */
+  const cellSubjectPopup = document.getElementById("cellSubjectPopup");
+  const cellSubjectList = document.getElementById("cellSubjectList");
+  const cellSubjectCustom = document.getElementById("cellSubjectCustom");
+  const cellSubjectPage = document.getElementById("cellSubjectPage");
+  const cellSubjectPlace = document.getElementById("cellSubjectPlace");
+  let activeCellPD = null;
+
+  function openCellSubjectPopup(td, p, d){
+    const week = getCurrentWeek();
+    if(!week) return;
+    activeCellPD = { p, d };
+    const cell = normalizeCell(week.grid[p] && week.grid[p][d]);
+    const matchesKnownSubject = data.subjects.some(s=>s.name===cell.text);
+    cellSubjectList.innerHTML = data.subjects.length
+      ? data.subjects.map(s=>`
+        <div class="subject-chip ${s.name===cell.text?'selected':''}" data-subject="${escapeHtml(s.name)}">${escapeHtml(s.name)}</div>
+      `).join("")
+      : `<div class="empty-note" style="padding:4px 0;">등록된 과목이 없습니다. '과목' 버튼에서 먼저 추가하거나 아래에 직접 입력하세요.</div>`;
+    cellSubjectList.querySelectorAll(".subject-chip").forEach(chip=>{
+      chip.addEventListener("click", ()=>{
+        cellSubjectList.querySelectorAll(".subject-chip").forEach(c=>c.classList.remove("selected"));
+        chip.classList.add("selected");
+        cellSubjectCustom.value = "";
+      });
+    });
+    cellSubjectCustom.value = (cell.text && !matchesKnownSubject) ? cell.text : "";
+    cellSubjectPage.value = cell.page || "";
+    cellSubjectPlace.value = cell.place || "";
+
+    const rect = td.getBoundingClientRect();
+    cellSubjectPopup.classList.add("open");
+    const pw = cellSubjectPopup.offsetWidth;
+    const ph = cellSubjectPopup.offsetHeight;
+    let left = rect.right + 10;
+    if(left + pw > window.innerWidth - 10) left = rect.left - pw - 10;
+    if(left < 10) left = 10;
+    let top = rect.top;
+    if(top + ph > window.innerHeight - 10) top = window.innerHeight - ph - 10;
+    if(top < 10) top = 10;
+    cellSubjectPopup.style.left = left + "px";
+    cellSubjectPopup.style.top = top + "px";
+  }
+  function closeCellSubjectPopup(){
+    cellSubjectPopup.classList.remove("open");
+    activeCellPD = null;
+  }
+  document.getElementById("cellSubjectSave").addEventListener("click", ()=>{
+    if(!activeCellPD) return;
+    const week = getCurrentWeek();
+    if(!week) return;
+    const { p, d } = activeCellPD;
+    const selectedChip = cellSubjectList.querySelector(".subject-chip.selected");
+    const existing = normalizeCell(week.grid[p] && week.grid[p][d]);
+    const customVal = cellSubjectCustom.value.trim();
+    const text = customVal || (selectedChip ? selectedChip.dataset.subject : existing.text);
+    if(!week.grid[p]) week.grid[p] = ["","","","",""];
+    week.grid[p][d] = { text, page: cellSubjectPage.value.trim(), place: cellSubjectPlace.value.trim() };
+    save();
+    renderTimetable();
+    closeCellSubjectPopup();
+  });
+  document.getElementById("cellSubjectClear").addEventListener("click", ()=>{
+    if(!activeCellPD) return;
+    const week = getCurrentWeek();
+    if(!week) return;
+    const { p, d } = activeCellPD;
+    if(!week.grid[p]) week.grid[p] = ["","","","",""];
+    week.grid[p][d] = { text:"", page:"", place:"" };
+    save();
+    renderTimetable();
+    closeCellSubjectPopup();
+  });
+  document.addEventListener("click", (e)=>{
+    if(cellSubjectPopup.classList.contains("open") &&
+       !cellSubjectPopup.contains(e.target) &&
+       !e.target.closest("td.tt-clickable")){
+      closeCellSubjectPopup();
+    }
+  });
+
+  /* ---------------- Today record count ---------------- */
+  function renderTodayCount(){
+    const t = todayStr();
+    let studentRecordCount=0, parent=0;
+    data.students.forEach(s=>{
+      (s.records||[]).forEach(r=>{
+        if(r.date===t) studentRecordCount++;
+      });
+    });
+    data.parentConsults.forEach(r=>{ if(r.date===t) parent++; });
+    document.getElementById("cntStudentRecord").textContent = studentRecordCount;
+    document.getElementById("cntParent").textContent = parent;
+    document.getElementById("todayCount").textContent = studentRecordCount+parent;
+    const dt = new Date();
+    document.getElementById("todayDateLabel").textContent =
+      `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,"0")}.${String(dt.getDate()).padStart(2,"0")}`;
+  }
+
+  /* ---------------- Important schedule ---------------- */
+  const scheduleList = document.getElementById("scheduleList");
+  function renderSchedule(){
+    const now = new Date();
+    const todayISO = todayStr();
+    const monthStart = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-01`;
+    const lastDay = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+    const monthEnd = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(lastDay)}`;
+    const items = data.schedule
+      .filter(it=> it.startDate <= monthEnd && it.endDate >= monthStart)
+      .sort((a,b)=>{
+        const aExpired = a.endDate < todayISO;
+        const bExpired = b.endDate < todayISO;
+        if(aExpired !== bExpired) return aExpired ? 1 : -1;
+        return a.startDate.localeCompare(b.startDate);
+      });
+    if(items.length===0){
+      scheduleList.innerHTML = `<div class="empty-note">이번 달 등록된 일정이 없습니다.</div>`;
+      return;
+    }
+    scheduleList.innerHTML = items.map(it=>{
+      const dateLabel = it.startDate===it.endDate ? formatMD(it.startDate) : `${formatMD(it.startDate)}~${formatMD(it.endDate)}`;
+      const typeInfo = getScheduleTypeInfo(it.type);
+      const typeTag = it.type ? `<span class="schedule-type-tag" style="background:${typeInfo.bg}; color:${typeInfo.text};">${escapeHtml(it.type)}</span>` : "";
+      return `
+      <li class="schedule-item" data-id="${it.id}">
+        <span class="schedule-date">${dateLabel}</span>
+        ${typeTag}
+        <span class="schedule-text">${escapeHtml(it.title)}</span>
+        <button class="schedule-del" data-id="${it.id}">×</button>
+      </li>`;
+    }).join("");
+    scheduleList.querySelectorAll(".schedule-del").forEach(btn=>{
+      btn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        data.schedule = data.schedule.filter(x=>x.id!==btn.dataset.id);
+        save(); renderSchedule(); renderCalendar();
+      });
+    });
+  }
+  scheduleList.addEventListener("click", (e)=>{
+    if(e.target.closest(".schedule-del")) return;
+    const li = e.target.closest(".schedule-item");
+    if(li) openEventModal(li.dataset.id);
+  });
+  function formatMD(dateStr){
+    if(!dateStr) return "-";
+    const [y,m,d] = dateStr.split("-");
+    return `${m}.${d}`;
+  }
+  function formatFullDate(dateStr){
+    if(!dateStr) return "-";
+    const [y,m,d] = dateStr.split("-");
+    return `${y}.${m}.${d}`;
+  }
+
+  let repeatMode = false;
+  const repeatToggleBtn = document.getElementById("repeatToggleBtn");
+  const scheduleEndDateEl = document.getElementById("scheduleEndDate");
+  const dateTildeEl = document.getElementById("dateTilde");
+  repeatToggleBtn.addEventListener("click", ()=>{
+    repeatMode = !repeatMode;
+    repeatToggleBtn.classList.toggle("active", repeatMode);
+    scheduleEndDateEl.style.display = repeatMode ? "inline-block" : "none";
+    dateTildeEl.style.display = repeatMode ? "inline" : "none";
+    if(!repeatMode) scheduleEndDateEl.value = "";
+  });
+
+  function addSchedule(){
+    const dateEl = document.getElementById("scheduleDate");
+    const textEl = document.getElementById("scheduleText");
+    const typeEl = document.getElementById("scheduleTypeSelect");
+    if(!dateEl.value || !textEl.value.trim()) return;
+    const start = dateEl.value;
+    let end = start;
+    if(repeatMode && scheduleEndDateEl.value){
+      end = scheduleEndDateEl.value >= start ? scheduleEndDateEl.value : start;
+    }
+    data.schedule.push({id:uid(), title:textEl.value.trim(), startDate:start, endDate:end, time:"", place:"", memo:"", type:typeEl.value});
+    textEl.value = "";
+    scheduleEndDateEl.value = "";
+    save(); renderSchedule(); renderCalendar();
+  }
+  document.getElementById("scheduleAddBtn").addEventListener("click", addSchedule);
+  document.getElementById("scheduleText").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){ e.preventDefault(); addSchedule(); }
+  });
+
+  /* ---------------- Event detail modal ---------------- */
+  let activeEventId = null;
+  let deleteArmed = false;
+  const eventModalOverlay = document.getElementById("eventModalOverlay");
+  const eventModalDeleteBtn = document.getElementById("eventModalDelete");
+  function resetDeleteArm(){
+    deleteArmed = false;
+    eventModalDeleteBtn.textContent = "일정 삭제";
+    eventModalDeleteBtn.classList.remove("confirm-armed");
+  }
+  function openEventModal(id){
+    const ev = data.schedule.find(x=>x.id===id);
+    if(!ev) return;
+    activeEventId = id;
+    resetDeleteArm();
+    document.getElementById("eventModalDate").textContent =
+      ev.startDate===ev.endDate ? formatFullDate(ev.startDate) : `${formatFullDate(ev.startDate)} ~ ${formatFullDate(ev.endDate)}`;
+    document.getElementById("eventModalTitle").value = ev.title || "";
+    document.getElementById("eventModalType").value = (ev.type === undefined || ev.type === null) ? "수업" : ev.type;
+    document.getElementById("eventModalTime").value = ev.time || "";
+    document.getElementById("eventModalPlace").value = ev.place || "";
+    document.getElementById("eventModalMemo").value = ev.memo || "";
+    eventModalOverlay.classList.add("open");
+  }
+  function closeEventModal(){
+    eventModalOverlay.classList.remove("open");
+    activeEventId = null;
+    resetDeleteArm();
+  }
+  document.getElementById("eventModalClose").addEventListener("click", closeEventModal);
+  eventModalOverlay.addEventListener("click", (e)=>{
+    if(e.target === eventModalOverlay) closeEventModal();
+  });
+  document.getElementById("eventModalSave").addEventListener("click", ()=>{
+    const ev = data.schedule.find(x=>x.id===activeEventId);
+    if(!ev) return;
+    const newTitle = document.getElementById("eventModalTitle").value.trim();
+    ev.title = newTitle || ev.title;
+    ev.type = document.getElementById("eventModalType").value;
+    ev.time = document.getElementById("eventModalTime").value.trim();
+    ev.place = document.getElementById("eventModalPlace").value.trim();
+    ev.memo = document.getElementById("eventModalMemo").value.trim();
+    save(); renderSchedule(); renderCalendar();
+    closeEventModal();
+  });
+  eventModalDeleteBtn.addEventListener("click", ()=>{
+    if(!activeEventId) return;
+    if(!deleteArmed){
+      deleteArmed = true;
+      eventModalDeleteBtn.textContent = "정말 삭제할까요? (다시 클릭)";
+      eventModalDeleteBtn.classList.add("confirm-armed");
+      return;
+    }
+    const idToDelete = activeEventId;
+    data.schedule = data.schedule.filter(x=>x.id!==idToDelete);
+    save();
+    closeEventModal();
+    renderSchedule();
+    renderCalendar();
+  });
+
+
+  /* ---------------- Checklist ---------------- */
+  const checklistClassCol = document.getElementById("checklistClassCol");
+  const checklistWorkCol = document.getElementById("checklistWorkCol");
+
+  function isDeadlineOverdue(deadline){
+    if(!deadline) return false;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dl = new Date(deadline + "T00:00:00");
+    return dl < today;
+  }
+  function isDeadlineUrgent(deadline){
+    if(!deadline) return false;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dl = new Date(deadline + "T00:00:00");
+    const diffDays = Math.round((dl - today) / 86400000);
+    return diffDays >= 0 && diffDays <= 3;
+  }
+  function sortChecklistItems(items){
+    return [...items].sort((a,b)=>{
+      if(a.done !== b.done) return a.done ? 1 : -1;
+      if(a.deadline && b.deadline) return a.deadline.localeCompare(b.deadline);
+      if(a.deadline && !b.deadline) return -1;
+      if(!a.deadline && b.deadline) return 1;
+      return 0;
+    });
+  }
+  function renderChecklistColumn(container, type){
+    const items = sortChecklistItems(data.checklist.filter(it=>it.type===type));
+    if(items.length===0){
+      container.innerHTML = `<div class="empty-note">할 일이 없습니다.</div>`;
+      return;
+    }
+    container.innerHTML = items.map(it=>{
+      const overdue = !it.done && isDeadlineOverdue(it.deadline);
+      const urgent = !it.done && isDeadlineUrgent(it.deadline);
+      const deadlineCls = overdue ? "overdue" : (urgent ? "urgent" : "");
+      const deadlinePart = it.deadline
+        ? `<span class="checklist-deadline ${deadlineCls}">${formatMD(it.deadline)}</span> `
+        : "";
+      const itemCls = [it.done ? "done" : "", overdue ? "overdue" : ""].filter(Boolean).join(" ");
+      return `
+      <li class="checklist-item ${itemCls}">
+        <input type="checkbox" data-id="${it.id}" ${it.done?'checked':''}>
+        <span class="checklist-text">${deadlinePart}${escapeHtml(it.text)}</span>
+        <button class="checklist-del" data-id="${it.id}">×</button>
+      </li>`;
+    }).join("");
+    container.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+      cb.addEventListener("change", ()=>{
+        const item = data.checklist.find(x=>x.id===cb.dataset.id);
+        item.done = cb.checked;
+        save(); renderChecklist();
+      });
+    });
+    container.querySelectorAll(".checklist-del").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        data.checklist = data.checklist.filter(x=>x.id!==btn.dataset.id);
+        save(); renderChecklist();
+      });
+    });
+  }
+  function renderChecklist(){
+    renderChecklistColumn(checklistClassCol, "학급·학년");
+    renderChecklistColumn(checklistWorkCol, "업무");
+  }
+  function addChecklist(){
+    const textEl = document.getElementById("checklistText");
+    const deadlineEl = document.getElementById("checklistDeadline");
+    const typeEl = document.getElementById("checklistType");
+    if(!textEl.value.trim()) return;
+    data.checklist.push({
+      id: uid(),
+      text: textEl.value.trim(),
+      done: false,
+      deadline: deadlineEl.value || "",
+      type: typeEl.value
+    });
+    textEl.value = "";
+    save(); renderChecklist();
+  }
+  document.getElementById("checklistAddBtn").addEventListener("click", addChecklist);
+  document.getElementById("checklistText").addEventListener("keydown", e=>{
+    if(e.key === "Enter") addChecklist();
+  });
+
+  /* ---------------- Student records ---------------- */
+  const RECORD_TYPES = ["관찰","학습","생활","문제행동","상담","분리지도","기타"];
+  const recNewStudentSelect = document.getElementById("recNewStudentSelect");
+  const recordFilterDate = document.getElementById("recordFilterDate");
+  const studentRecordBlocks = document.getElementById("studentRecordBlocks");
+
+  function renderRecordStudentOptions(){
+    const prev = recNewStudentSelect.value;
+    const sorted = getSortedStudents();
+    recNewStudentSelect.innerHTML = sorted.length
+      ? sorted.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("")
+      : `<option value="">학생을 먼저 등록하세요</option>`;
+    if(data.students.some(s=>s.id===prev)) recNewStudentSelect.value = prev;
+  }
+  // find the subject scheduled for a given date + period, based on the dashboard's timetable
+  function findTimetableSubject(dateStr, period){
+    if(!dateStr || !period) return "";
+    const dow = new Date(dateStr+"T00:00:00").getDay(); // 0 Sun .. 6 Sat
+    if(dow===0 || dow===6) return "";
+    const dayIdx = dow - 1; // Mon=0 .. Fri=4
+    const week = data.timetableWeeks.find(w=> w.startDate <= dateStr && dateStr <= w.endDate);
+    if(!week) return "";
+    const row = week.grid[period-1];
+    if(!row) return "";
+    const cell = normalizeCell(row[dayIdx]);
+    return cell.text || "";
+  }
+  function studentSortValue(s){
+    return (s.number===undefined || s.number===null || s.number==="") ? Infinity : Number(s.number);
+  }
+  function getSortedStudents(){
+    return [...data.students].sort((a,b)=>{
+      const av = studentSortValue(a), bv = studentSortValue(b);
+      if(av !== bv) return av - bv;
+      return data.students.indexOf(a) - data.students.indexOf(b);
+    });
+  }
+  function findRecordAndStudent(recordId){
+    for(const s of data.students){
+      const r = (s.records||[]).find(x=>x.id===recordId);
+      if(r) return { student:s, record:r };
+    }
+    return null;
+  }
+
+  function renderStudentRecordBlocks(){
+    const filterDate = recordFilterDate.value || todayStr();
+    const blocks = [];
+    data.students.forEach((s, idx)=>{
+      const records = (s.records||[]).filter(r=>r.date===filterDate);
+      if(records.length) blocks.push({ student:s, order: idx, records });
+    });
+    blocks.sort((a,b)=>{
+      const av = studentSortValue(a.student), bv = studentSortValue(b.student);
+      if(av !== bv) return av - bv;
+      return a.order - b.order;
+    });
+    if(blocks.length===0){
+      studentRecordBlocks.innerHTML = `<div class="empty-note">선택한 날짜에 작성된 기록이 없습니다.</div>`;
+      return;
+    }
+    studentRecordBlocks.innerHTML = blocks.map(b=>{
+      const rows = b.records.map(r=>renderRecordRowHtml(r)).join("");
+      return `
+      <div class="student-record-block" data-student-id="${b.student.id}">
+        <div class="student-record-block-head">
+          <h3>${escapeHtml(b.student.name)}</h3>
+          <button class="btn ghost b-add-btn" data-student-id="${b.student.id}">+ 새 기록 추가</button>
+        </div>
+        <table class="record-entry-table">
+          <thead><tr><th>교시</th><th>과목</th><th>유형</th><th>내용</th><th>지도 및 계획</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }).join("");
+
+    studentRecordBlocks.querySelectorAll(".b-add-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const s = data.students.find(x=>x.id===btn.dataset.studentId);
+        if(!s) return;
+        s.records = s.records || [];
+        s.records.push({ id: uid(), date: filterDate, period:"", subject:"", types:[], content:"", guidance:"" });
+        save();
+        renderStudentRecordBlocks();
+        renderTodayCount();
+      });
+    });
+    wireRecordRowEvents();
+  }
+
+  function renderRecordRowHtml(r){
+    const periodLabel = r.period ? `${r.period}교시` : `<span class="rec-cell-placeholder">선택</span>`;
+    const subjectLabel = r.subject ? escapeHtml(r.subject) : `<span class="rec-cell-placeholder">-</span>`;
+    const types = r.types && r.types.length ? r.types : (r.type ? [r.type] : []);
+    const typeLabel = types.length ? escapeHtml(types.join(", ")) : `<span class="rec-cell-placeholder">선택</span>`;
+    const contentLabel = r.content ? escapeHtml(r.content) : `<span class="rec-cell-placeholder">클릭하여 입력</span>`;
+    const guidanceLabel = r.guidance ? escapeHtml(r.guidance) : `<span class="rec-cell-placeholder">클릭하여 입력</span>`;
+    return `
+      <tr data-id="${r.id}">
+        <td class="rec-cell rec-period-cell" data-field="period">${periodLabel}</td>
+        <td class="rec-cell rec-subject-cell" data-field="subject">${subjectLabel}</td>
+        <td class="rec-cell rec-type-cell" data-field="types">${typeLabel}</td>
+        <td class="rec-cell rec-text-cell" data-field="content">${contentLabel}</td>
+        <td class="rec-cell rec-text-cell" data-field="guidance">${guidanceLabel}</td>
+        <td><button class="row-del" data-id="${r.id}">×</button></td>
+      </tr>`;
+  }
+
+  function refreshRow(recordId){
+    const found = findRecordAndStudent(recordId);
+    if(!found) return;
+    const tr = studentRecordBlocks.querySelector(`tr[data-id="${recordId}"]`);
+    if(!tr) return;
+    tr.outerHTML = renderRecordRowHtml(found.record);
+    wireRecordRowEvents();
+  }
+
+  function wireRecordRowEvents(){
+    studentRecordBlocks.querySelectorAll(".rec-period-cell").forEach(td=>{
+      td.addEventListener("click", function handler(){
+        td.removeEventListener("click", handler);
+        const recordId = td.closest("tr").dataset.id;
+        const found = findRecordAndStudent(recordId);
+        if(!found) return;
+        const cur = found.record.period;
+        td.innerHTML = `<select class="rec-inline-select">
+          <option value="">선택</option>
+          ${[1,2,3,4,5,6].map(p=>`<option value="${p}" ${String(cur)===String(p)?'selected':''}>${p}교시</option>`).join("")}
+        </select>`;
+        const sel = td.querySelector("select");
+        sel.focus();
+        let committed = false;
+        function commit(){
+          if(committed) return;
+          committed = true;
+          found.record.period = sel.value;
+          const subj = findTimetableSubject(recordFilterDate.value || todayStr(), sel.value ? +sel.value : null);
+          if(subj) found.record.subject = subj;
+          save();
+          refreshRow(recordId);
+        }
+        sel.addEventListener("change", commit);
+        sel.addEventListener("blur", commit);
+      });
+    });
+
+    studentRecordBlocks.querySelectorAll(".rec-type-cell").forEach(td=>{
+      td.addEventListener("click", ()=>{
+        const recordId = td.closest("tr").dataset.id;
+        openRecTypePopup(td, recordId);
+      });
+    });
+
+    studentRecordBlocks.querySelectorAll(".rec-text-cell").forEach(td=>{
+      td.addEventListener("click", function handler(){
+        td.removeEventListener("click", handler);
+        const recordId = td.closest("tr").dataset.id;
+        const field = td.dataset.field;
+        const found = findRecordAndStudent(recordId);
+        if(!found) return;
+        td.innerHTML = `<div class="rec-text-edit-wrap">
+          <textarea>${escapeHtml(found.record[field]||"")}</textarea>
+          <button type="button" class="btn amber rec-save-btn">저장</button>
+        </div>`;
+        const ta = td.querySelector("textarea");
+        function autoGrow(){
+          ta.style.height = "auto";
+          ta.style.height = ta.scrollHeight + "px";
+        }
+        ta.addEventListener("input", autoGrow);
+        autoGrow();
+        ta.focus();
+        td.querySelector(".rec-save-btn").addEventListener("click", ()=>{
+          found.record[field] = ta.value.trim();
+          save();
+          refreshRow(recordId);
+        });
+      });
+    });
+
+    studentRecordBlocks.querySelectorAll(".row-del").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        openRecordDeleteConfirm(btn.dataset.id);
+      });
+    });
+  }
+
+  /* ---- Type multi-select popup ---- */
+  const recTypePopup = document.getElementById("recTypePopup");
+  const recTypePopupList = document.getElementById("recTypePopupList");
+  let activeTypeRecordId = null;
+  function openRecTypePopup(td, recordId){
+    const found = findRecordAndStudent(recordId);
+    if(!found) return;
+    activeTypeRecordId = recordId;
+    const current = found.record.types && found.record.types.length ? found.record.types : (found.record.type ? [found.record.type] : []);
+    recTypePopupList.innerHTML = RECORD_TYPES.map(t=>`
+      <label class="rec-type-popup-item">
+        <input type="checkbox" value="${t}" ${current.includes(t)?'checked':''}>${t}
+      </label>`).join("");
+    recTypePopupList.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+      cb.addEventListener("change", ()=>{
+        const checked = [...recTypePopupList.querySelectorAll("input:checked")].map(x=>x.value);
+        found.record.types = checked;
+        found.record.type = checked[0] || "";
+        save();
+      });
+    });
+    const rect = td.getBoundingClientRect();
+    recTypePopup.classList.add("open");
+    const pw = recTypePopup.offsetWidth;
+    const ph = recTypePopup.offsetHeight;
+    let left = rect.right + 8;
+    if(left + pw > window.innerWidth - 10) left = rect.left - pw - 8;
+    if(left < 10) left = 10;
+    let top = rect.top;
+    if(top + ph > window.innerHeight - 10) top = window.innerHeight - ph - 10;
+    if(top < 10) top = 10;
+    recTypePopup.style.left = left + "px";
+    recTypePopup.style.top = top + "px";
+  }
+  function closeRecTypePopup(){
+    if(!recTypePopup.classList.contains("open")) return;
+    recTypePopup.classList.remove("open");
+    if(activeTypeRecordId) refreshRow(activeTypeRecordId);
+    activeTypeRecordId = null;
+  }
+  document.addEventListener("click", (e)=>{
+    if(recTypePopup.classList.contains("open") &&
+       !recTypePopup.contains(e.target) &&
+       !e.target.closest(".rec-type-cell")){
+      closeRecTypePopup();
+    }
+  });
+
+  /* ---- Delete confirmation popup ---- */
+  const recordDeleteConfirmOverlay = document.getElementById("recordDeleteConfirmOverlay");
+  let recordPendingDeleteId = null;
+  function openRecordDeleteConfirm(recordId){
+    recordPendingDeleteId = recordId;
+    recordDeleteConfirmOverlay.classList.add("open");
+  }
+  function closeRecordDeleteConfirm(){
+    recordDeleteConfirmOverlay.classList.remove("open");
+    recordPendingDeleteId = null;
+  }
+  document.getElementById("recordDeleteConfirmClose").addEventListener("click", closeRecordDeleteConfirm);
+  document.getElementById("recordDeleteCancelBtn").addEventListener("click", closeRecordDeleteConfirm);
+  recordDeleteConfirmOverlay.addEventListener("click", (e)=>{
+    if(e.target === recordDeleteConfirmOverlay) closeRecordDeleteConfirm();
+  });
+  document.getElementById("recordDeleteConfirmBtn").addEventListener("click", ()=>{
+    if(!recordPendingDeleteId) return;
+    const found = findRecordAndStudent(recordPendingDeleteId);
+    if(found){
+      found.student.records = (found.student.records||[]).filter(r=>r.id!==recordPendingDeleteId);
+      save();
+      renderStudentRecordBlocks();
+      renderTodayCount();
+    }
+    closeRecordDeleteConfirm();
+  });
+
+  recordFilterDate.addEventListener("change", ()=>{
+    save();
+    renderStudentRecordBlocks();
+  });
+
+  document.getElementById("recAddBtn").addEventListener("click", ()=>{
+    const s = data.students.find(x=>x.id===recNewStudentSelect.value);
+    if(!s) return;
+    const filterDate = recordFilterDate.value || todayStr();
+    s.records = s.records || [];
+    s.records.push({ id: uid(), date: filterDate, period:"", subject:"", types:[], content:"", guidance:"" });
+    save();
+    renderStudentRecordBlocks();
+    renderTodayCount();
+  });
+
+  /* ---------------- All records modal ---------------- */
+  const allRecordsModalOverlay = document.getElementById("allRecordsModalOverlay");
+  const allRecordsStudentFilter = document.getElementById("allRecordsStudentFilter");
+  const allRecordsMonthFilter = document.getElementById("allRecordsMonthFilter");
+  const allRecordsTableBody = document.getElementById("allRecordsTableBody");
+
+  function collectAllRecords(){
+    const list = [];
+    data.students.forEach((s, idx)=>{
+      (s.records||[]).forEach(r=> list.push({ student:s, order:idx, record:r }));
+    });
+    return list;
+  }
+  function renderAllRecordsFilters(){
+    const all = collectAllRecords();
+    const prevStudent = allRecordsStudentFilter.value;
+    allRecordsStudentFilter.innerHTML = `<option value="">전체 학생</option>` +
+      getSortedStudents().map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("");
+    if(data.students.some(s=>s.id===prevStudent)) allRecordsStudentFilter.value = prevStudent;
+
+    const months = [...new Set(all.map(x=>x.record.date ? x.record.date.slice(0,7) : "").filter(Boolean))].sort().reverse();
+    const prevMonth = allRecordsMonthFilter.value;
+    allRecordsMonthFilter.innerHTML = `<option value="">전체 월</option>` +
+      months.map(m=>{
+        const [y,mm] = m.split("-");
+        return `<option value="${m}">${y}년 ${+mm}월</option>`;
+      }).join("");
+    if(months.includes(prevMonth)) allRecordsMonthFilter.value = prevMonth;
+  }
+  function sortAllRecordsList(list){
+    return [...list].sort((a,b)=>{
+      const dCmp = (a.record.date||"").localeCompare(b.record.date||"");
+      if(dCmp !== 0) return dCmp;
+      const av = studentSortValue(a.student), bv = studentSortValue(b.student);
+      if(av !== bv) return av - bv;
+      if(a.order !== b.order) return a.order - b.order;
+      const ap = a.record.period ? +a.record.period : 99;
+      const bp = b.record.period ? +b.record.period : 99;
+      return ap - bp;
+    });
+  }
+  function renderAllRecordsTable(){
+    const studentFilter = allRecordsStudentFilter.value;
+    const monthFilter = allRecordsMonthFilter.value;
+    let list = collectAllRecords();
+    if(studentFilter) list = list.filter(x=>x.student.id===studentFilter);
+    if(monthFilter) list = list.filter(x=> (x.record.date||"").slice(0,7)===monthFilter);
+    list = sortAllRecordsList(list);
+    if(list.length===0){
+      allRecordsTableBody.innerHTML = `<tr><td colspan="7"><div class="empty-note">표시할 기록이 없습니다.</div></td></tr>`;
+      return;
+    }
+    allRecordsTableBody.innerHTML = list.map(x=>{
+      const r = x.record;
+      const types = r.types && r.types.length ? r.types : (r.type ? [r.type] : []);
+      return `<tr>
+        <td>${escapeHtml(r.date||"-")}</td>
+        <td>${escapeHtml(x.student.name)}</td>
+        <td>${r.period ? escapeHtml(r.period+"교시") : "-"}</td>
+        <td>${escapeHtml(r.subject||"-")}</td>
+        <td>${types.length ? escapeHtml(types.join(", ")) : "-"}</td>
+        <td>${escapeHtml(r.content||"")}</td>
+        <td>${escapeHtml(r.guidance||"")}</td>
+      </tr>`;
+    }).join("");
+  }
+  document.getElementById("allRecordsBtn").addEventListener("click", ()=>{
+    renderAllRecordsFilters();
+    renderAllRecordsTable();
+    allRecordsModalOverlay.classList.add("open");
+  });
+  document.getElementById("allRecordsModalClose").addEventListener("click", ()=>{
+    allRecordsModalOverlay.classList.remove("open");
+  });
+  allRecordsModalOverlay.addEventListener("click", (e)=>{
+    if(e.target === allRecordsModalOverlay) allRecordsModalOverlay.classList.remove("open");
+  });
+  allRecordsStudentFilter.addEventListener("change", renderAllRecordsTable);
+  allRecordsMonthFilter.addEventListener("change", renderAllRecordsTable);
+
+  document.getElementById("allRecordsPdfBtn").addEventListener("click", ()=>{
+    const studentFilter = allRecordsStudentFilter.value;
+    const monthFilter = allRecordsMonthFilter.value;
+    let list = collectAllRecords();
+    if(studentFilter) list = list.filter(x=>x.student.id===studentFilter);
+    if(monthFilter) list = list.filter(x=> (x.record.date||"").slice(0,7)===monthFilter);
+    list = sortAllRecordsList(list);
+
+    const studentLabel = studentFilter ? (data.students.find(s=>s.id===studentFilter)||{name:"학생"}).name : "전체 학생";
+    const monthLabel = monthFilter ? (()=>{ const [y,mm]=monthFilter.split("-"); return `${y}년 ${+mm}월`; })() : "전체 기간";
+    const metaLine = [data.meta.year?`${data.meta.year}년`:"", data.meta.grade, data.meta.className].filter(Boolean).join(" ");
+
+    const rowsHtml = list.map(x=>{
+      const r = x.record;
+      const types = r.types && r.types.length ? r.types : (r.type ? [r.type] : []);
+      return `<tr>
+        <td class="c">${escapeHtml(r.date||"-")}</td>
+        <td class="c">${escapeHtml(x.student.name)}</td>
+        <td class="c">${r.period ? escapeHtml(r.period+"교시") : "-"}</td>
+        <td class="c">${escapeHtml(r.subject||"-")}</td>
+        <td class="c">${types.length ? escapeHtml(types.join(", ")) : "-"}</td>
+        <td>${escapeHtml(r.content||"")}</td>
+        <td>${escapeHtml(r.guidance||"")}</td>
+      </tr>`;
+    }).join("");
+
+    const printWin = window.open("", "_blank");
+    if(!printWin){ alert("팝업이 차단되어 PDF를 열 수 없습니다. 팝업 차단을 해제해주세요."); return; }
+    printWin.document.write(`<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>학생 기록</title>
+<style>
+  body{font-family:'Malgun Gothic','Apple SD Gothic Neo','NanumSquareRound',sans-serif; padding:28px; color:#222;}
+  h1{font-size:20px; margin:0 0 4px;}
+  .meta{font-size:12px; color:#666; margin-bottom:18px;}
+  table{width:100%; border-collapse:collapse; font-size:11px; table-layout:fixed;}
+  th,td{border:1px solid #ccc; padding:6px 8px; text-align:left; vertical-align:top; word-break:break-word;}
+  th{background:#eee; text-align:center;}
+  td.c{text-align:center; white-space:nowrap;}
+  th:nth-child(1), td:nth-child(1){width:9%;}
+  th:nth-child(2), td:nth-child(2){width:7%;}
+  th:nth-child(3), td:nth-child(3){width:6%;}
+  th:nth-child(4), td:nth-child(4){width:7%;}
+  th:nth-child(5), td:nth-child(5){width:9%;}
+  th:nth-child(6), td:nth-child(6){width:38%;}
+  th:nth-child(7), td:nth-child(7){width:24%;}
+  @media print{ body{padding:10mm;} }
+</style>
+</head>
+<body>
+  <h1>학생 기록</h1>
+  <div class="meta">${escapeHtml(metaLine)}${metaLine ? " · " : ""}학생: ${escapeHtml(studentLabel)} · 기간: ${escapeHtml(monthLabel)}</div>
+  <table>
+    <thead><tr><th>날짜</th><th>학생</th><th>교시</th><th>과목</th><th>유형</th><th>내용</th><th>지도 및 계획</th></tr></thead>
+    <tbody>${rowsHtml || '<tr><td colspan="7" style="text-align:center;color:#999;">표시할 기록이 없습니다.</td></tr>'}</tbody>
+  </table>
+</body></html>`);
+    printWin.document.close();
+    printWin.focus();
+    printWin.print();
+  });
+
+  /* ---------------- Attendance (출결 상황) ---------------- */
+  const attStudentSelect = document.getElementById("attStudentSelect");
+  const attTypeSelect = document.getElementById("attTypeSelect");
+  const attCategorySelect = document.getElementById("attCategorySelect");
+  const attRepeatToggleBtn = document.getElementById("attRepeatToggleBtn");
+  const attDateEl = document.getElementById("attDate");
+  const attEndDateEl = document.getElementById("attEndDate");
+  const attDateTildeEl = document.getElementById("attDateTilde");
+  const attendanceTableBody = document.getElementById("attendanceTableBody");
+  let attRepeatMode = false;
+
+  function renderAttendanceStudentOptions(){
+    const prev = attStudentSelect.value;
+    const sorted = getSortedStudents();
+    attStudentSelect.innerHTML = sorted.length
+      ? sorted.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("")
+      : `<option value="">학생을 먼저 등록하세요</option>`;
+    if(data.students.some(s=>s.id===prev)) attStudentSelect.value = prev;
+  }
+  function updateAttCategoryState(){
+    if(attTypeSelect.value === "현장체험학습"){
+      attCategorySelect.disabled = true;
+      attCategorySelect.value = "";
+    } else {
+      attCategorySelect.disabled = false;
+      if(!attCategorySelect.value) attCategorySelect.value = "질병";
+    }
+  }
+  attTypeSelect.addEventListener("change", updateAttCategoryState);
+  updateAttCategoryState();
+
+  attRepeatToggleBtn.addEventListener("click", ()=>{
+    attRepeatMode = !attRepeatMode;
+    attRepeatToggleBtn.classList.toggle("active", attRepeatMode);
+    attEndDateEl.style.display = attRepeatMode ? "inline-block" : "none";
+    attDateTildeEl.style.display = attRepeatMode ? "inline" : "none";
+    if(!attRepeatMode) attEndDateEl.value = "";
+  });
+
+  function renderAttendanceTable(){
+    const items = [...data.studentSchedule].sort((a,b)=> a.startDate.localeCompare(b.startDate));
+    if(items.length===0){
+      attendanceTableBody.innerHTML = `<tr><td colspan="6"><div class="empty-note">등록된 출결 기록이 없습니다.</div></td></tr>`;
+      return;
+    }
+    attendanceTableBody.innerHTML = items.map(it=>{
+      const dateLabel = it.startDate===it.endDate ? formatMD(it.startDate) : `${formatMD(it.startDate)}~${formatMD(it.endDate)}`;
+      const isTrip = it.type === "현장체험학습";
+      return `
+      <tr data-id="${it.id}">
+        <td class="att-clickable">${dateLabel}</td>
+        <td class="att-clickable">${escapeHtml(attStudentName(it))}</td>
+        <td class="att-clickable">${escapeHtml(attCatType(it))}</td>
+        <td style="text-align:center;"><input type="checkbox" data-field="niceReported" ${it.niceReported?'checked':''}></td>
+        <td style="text-align:center;">${isTrip ? `<input type="checkbox" data-field="reportSubmitted" ${it.reportSubmitted?'checked':''}>` : `<span class="att-cell-dash">-</span>`}</td>
+        <td><button class="row-del" data-id="${it.id}">×</button></td>
+      </tr>`;
+    }).join("");
+    attendanceTableBody.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+      cb.addEventListener("change", ()=>{
+        const id = cb.closest("tr").dataset.id;
+        const item = data.studentSchedule.find(x=>x.id===id);
+        if(!item) return;
+        item[cb.dataset.field] = cb.checked;
+        save();
+      });
+    });
+    attendanceTableBody.querySelectorAll(".row-del").forEach(btn=>{
+      btn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        data.studentSchedule = data.studentSchedule.filter(x=>x.id!==btn.dataset.id);
+        save(); renderAttendanceTable(); renderCalendar();
+      });
+    });
+    attendanceTableBody.querySelectorAll(".att-clickable").forEach(td=>{
+      td.addEventListener("click", ()=>{
+        openAttMemoModal(td.closest("tr").dataset.id);
+      });
+    });
+  }
+  document.getElementById("attAddBtn").addEventListener("click", ()=>{
+    if(!attStudentSelect.value || !attDateEl.value) return;
+    const start = attDateEl.value;
+    let end = start;
+    if(attRepeatMode && attEndDateEl.value){
+      end = attEndDateEl.value >= start ? attEndDateEl.value : start;
+    }
+    const isTrip = attTypeSelect.value === "현장체험학습";
+    data.studentSchedule.push({
+      id: uid(),
+      studentId: attStudentSelect.value,
+      type: attTypeSelect.value,
+      category: isTrip ? "" : attCategorySelect.value,
+      startDate: start,
+      endDate: end,
+      memo: "",
+      niceReported: false,
+      reportSubmitted: false
+    });
+    attEndDateEl.value = "";
+    save();
+    renderAttendanceTable();
+    renderCalendar();
+  });
+
+  /* ---------------- Parent consults ---------------- */
+  const pcRelationSelect = document.getElementById("pcRelation");
+  const pcRelationOther = document.getElementById("pcRelationOther");
+  const pcMethodSelect = document.getElementById("pcMethod");
+  const pcMethodOther = document.getElementById("pcMethodOther");
+
+  function toggleOtherInput(selectEl, otherEl){
+    otherEl.style.display = selectEl.value === "기타" ? "inline-block" : "none";
+    if(selectEl.value !== "기타") otherEl.value = "";
+  }
+  pcRelationSelect.addEventListener("change", ()=> toggleOtherInput(pcRelationSelect, pcRelationOther));
+  pcMethodSelect.addEventListener("change", ()=> toggleOtherInput(pcMethodSelect, pcMethodOther));
+
+  function renderParentSelect(){
+    const sel = document.getElementById("pcStudent");
+    sel.innerHTML = getSortedStudents().map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("")
+      || `<option value="">학생을 먼저 등록하세요</option>`;
+  }
+  function pcRelationLabel(r){
+    return r.relation === "기타" ? (r.relationOther || "기타") : r.relation;
+  }
+  function pcMethodLabel(r){
+    return r.method === "기타" ? (r.methodOther || "기타") : r.method;
+  }
+  function findParentConsult(id){
+    return data.parentConsults.find(x=>x.id===id);
+  }
+  function refreshParentRow(id){
+    const r = findParentConsult(id);
+    if(!r) return;
+    const tr = document.querySelector(`#pcTableBody tr[data-id="${id}"]`);
+    if(!tr) return;
+    tr.outerHTML = renderParentRowHtml(r);
+    wireParentRowEvents();
+  }
+  function renderParentRowHtml(r){
+    const student = data.students.find(s=>s.id===r.studentId);
+    const studentLabel = `${student ? student.name : "(삭제됨)"}(${pcRelationLabel(r)})`;
+    return `<tr data-id="${r.id}">
+      <td class="pc-cell" data-field="date">${escapeHtml(r.date)}</td>
+      <td class="pc-cell" data-field="student">${escapeHtml(studentLabel)}</td>
+      <td class="pc-cell" data-field="method">${escapeHtml(pcMethodLabel(r))}</td>
+      <td class="pc-cell" data-field="content">${escapeHtml(r.content)}</td>
+      <td class="pc-cell" data-field="followup">${escapeHtml(r.followup||"-")}</td>
+      <td><button class="row-del" data-id="${r.id}">×</button></td>
+    </tr>`;
+  }
+  function renderParentTable(){
+    const tbody = document.getElementById("pcTableBody");
+    const empty = document.getElementById("pcEmpty");
+    const items = [...data.parentConsults].sort((a,b)=> b.date.localeCompare(a.date));
+    if(items.length===0){ tbody.innerHTML=""; empty.style.display="block"; return; }
+    empty.style.display="none";
+    tbody.innerHTML = items.map(r=>renderParentRowHtml(r)).join("");
+    wireParentRowEvents();
+  }
+  function wireParentRowEvents(){
+    const tbody = document.getElementById("pcTableBody");
+    tbody.querySelectorAll(".row-del").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        data.parentConsults = data.parentConsults.filter(x=>x.id!==btn.dataset.id);
+        save(); renderParentTable(); renderTodayCount();
+      });
+    });
+    tbody.querySelectorAll('.pc-cell[data-field="date"]').forEach(td=>{
+      td.addEventListener("click", function handler(){
+        td.removeEventListener("click", handler);
+        const id = td.closest("tr").dataset.id;
+        const r = findParentConsult(id);
+        if(!r) return;
+        td.innerHTML = `<input type="date" class="pc-inline-date" value="${r.date}">`;
+        const inp = td.querySelector("input");
+        inp.focus();
+        let committed = false;
+        function commit(){
+          if(committed) return; committed = true;
+          r.date = inp.value || r.date;
+          save(); refreshParentRow(id);
+        }
+        inp.addEventListener("change", commit);
+        inp.addEventListener("blur", commit);
+      });
+    });
+    tbody.querySelectorAll('.pc-cell[data-field="student"]').forEach(td=>{
+      td.addEventListener("click", function handler(){
+        td.removeEventListener("click", handler);
+        const id = td.closest("tr").dataset.id;
+        const r = findParentConsult(id);
+        if(!r) return;
+        const studentOpts = data.students.map(s=>`<option value="${s.id}" ${s.id===r.studentId?'selected':''}>${escapeHtml(s.name)}</option>`).join("");
+        const relOpts = ["엄마","아빠","할머니","할아버지","기타"].map(rl=>`<option value="${rl}" ${rl===r.relation?'selected':''}>${rl}</option>`).join("");
+        td.innerHTML = `<div class="pc-inline-wrap">
+          <select class="pc-inline-select pc-inline-student">${studentOpts}</select>
+          <select class="pc-inline-select pc-inline-relation">${relOpts}</select>
+          <input type="text" class="pc-inline-select pc-inline-relation-other" placeholder="관계 입력" style="display:${r.relation==='기타'?'block':'none'};" value="${escapeHtml(r.relationOther||"")}">
+        </div>`;
+        const studentSel = td.querySelector(".pc-inline-student");
+        const relSel = td.querySelector(".pc-inline-relation");
+        const relOtherInp = td.querySelector(".pc-inline-relation-other");
+        relSel.addEventListener("change", ()=>{
+          relOtherInp.style.display = relSel.value === "기타" ? "block" : "none";
+        });
+        let committed = false;
+        function commit(){
+          if(committed) return; committed = true;
+          r.studentId = studentSel.value;
+          r.relation = relSel.value;
+          r.relationOther = relOtherInp.value.trim();
+          save(); refreshParentRow(id);
+        }
+        studentSel.addEventListener("blur", ()=>{ setTimeout(()=>{ if(!td.contains(document.activeElement)) commit(); }, 120); });
+        relSel.addEventListener("blur", ()=>{ setTimeout(()=>{ if(!td.contains(document.activeElement)) commit(); }, 120); });
+        relOtherInp.addEventListener("blur", ()=>{ setTimeout(()=>{ if(!td.contains(document.activeElement)) commit(); }, 120); });
+      });
+    });
+    tbody.querySelectorAll('.pc-cell[data-field="method"]').forEach(td=>{
+      td.addEventListener("click", function handler(){
+        td.removeEventListener("click", handler);
+        const id = td.closest("tr").dataset.id;
+        const r = findParentConsult(id);
+        if(!r) return;
+        const methodOpts = ["전화","방문","하이톡","기타"].map(m=>`<option value="${m}" ${m===r.method?'selected':''}>${m}</option>`).join("");
+        td.innerHTML = `<div class="pc-inline-wrap">
+          <select class="pc-inline-select pc-inline-method">${methodOpts}</select>
+          <input type="text" class="pc-inline-select pc-inline-method-other" placeholder="방식 입력" style="display:${r.method==='기타'?'block':'none'};" value="${escapeHtml(r.methodOther||"")}">
+        </div>`;
+        const methodSel = td.querySelector(".pc-inline-method");
+        const methodOtherInp = td.querySelector(".pc-inline-method-other");
+        methodSel.addEventListener("change", ()=>{
+          methodOtherInp.style.display = methodSel.value === "기타" ? "block" : "none";
+        });
+        let committed = false;
+        function commit(){
+          if(committed) return; committed = true;
+          r.method = methodSel.value;
+          r.methodOther = methodOtherInp.value.trim();
+          save(); refreshParentRow(id);
+        }
+        methodSel.addEventListener("blur", ()=>{ setTimeout(()=>{ if(!td.contains(document.activeElement)) commit(); }, 120); });
+        methodOtherInp.addEventListener("blur", ()=>{ setTimeout(()=>{ if(!td.contains(document.activeElement)) commit(); }, 120); });
+      });
+    });
+    tbody.querySelectorAll('.pc-cell[data-field="content"], .pc-cell[data-field="followup"]').forEach(td=>{
+      td.addEventListener("click", function handler(){
+        td.removeEventListener("click", handler);
+        const id = td.closest("tr").dataset.id;
+        const field = td.dataset.field;
+        const r = findParentConsult(id);
+        if(!r) return;
+        const curVal = field==="followup" ? (r.followup||"") : (r.content||"");
+        td.innerHTML = `<div class="rec-text-edit-wrap">
+          <textarea>${escapeHtml(curVal)}</textarea>
+          <button type="button" class="btn amber rec-save-btn">저장</button>
+        </div>`;
+        const ta = td.querySelector("textarea");
+        function autoGrow(){ ta.style.height="auto"; ta.style.height=ta.scrollHeight+"px"; }
+        ta.addEventListener("input", autoGrow);
+        autoGrow();
+        ta.focus();
+        td.querySelector(".rec-save-btn").addEventListener("click", ()=>{
+          if(field==="followup") r.followup = ta.value.trim();
+          else r.content = ta.value.trim();
+          save(); refreshParentRow(id);
+        });
+      });
+    });
+  }
+  document.getElementById("pcAddBtn").addEventListener("click", ()=>{
+    const date = document.getElementById("pcDate").value || todayStr();
+    const studentId = document.getElementById("pcStudent").value;
+    const relation = pcRelationSelect.value;
+    const relationOther = pcRelationOther.value.trim();
+    const method = pcMethodSelect.value;
+    const methodOther = pcMethodOther.value.trim();
+    const content = document.getElementById("pcContent").value.trim();
+    const followup = document.getElementById("pcFollowup").value.trim();
+    if(!studentId || !content) return;
+    data.parentConsults.push({id:uid(), date, studentId, relation, relationOther, method, methodOther, content, followup});
+    document.getElementById("pcContent").value = "";
+    document.getElementById("pcFollowup").value = "";
+    pcRelationOther.value = ""; pcRelationOther.style.display = "none"; pcRelationSelect.value = "엄마";
+    pcMethodOther.value = ""; pcMethodOther.style.display = "none"; pcMethodSelect.value = "전화";
+    save(); renderParentTable(); renderTodayCount();
+  });
+
+  /* ---------------- Evaluations ---------------- */
+  const EVAL_LEVELS = ["매우잘함","잘함","보통","노력요함"];
+  let activeEvalSubject = null;
+
+  function renderEvalSubjectButtons(){
+    const btnWrap = document.getElementById("evalSubjectButtons");
+    const subjects = [...new Set(data.evalPlans.map(p=>p.subject))];
+    if(subjects.length===0){
+      btnWrap.innerHTML = `<div class="empty-note">평가 계획을 먼저 입력해주세요.</div>`;
+      if(activeEvalSubject===null) document.getElementById("evalSubjectTables").innerHTML = "";
+      return;
+    }
+    if(activeEvalSubject===null || !subjects.includes(activeEvalSubject)) activeEvalSubject = subjects[0];
+    btnWrap.innerHTML = subjects.map(s=>`
+      <button type="button" class="eval-subject-btn ${s===activeEvalSubject?'active':''}" data-subject="${escapeHtml(s)}">${escapeHtml(s)}</button>
+    `).join("");
+    btnWrap.querySelectorAll(".eval-subject-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        activeEvalSubject = btn.dataset.subject;
+        renderEvalSubjectButtons();
+        renderEvalSubjectTable();
+      });
+    });
+  }
+  function findEvalResult(planId, studentId){
+    return data.evalResults.find(r=>r.planId===planId && r.studentId===studentId);
+  }
+  function getOrCreateEvalResult(planId, studentId){
+    let r = findEvalResult(planId, studentId);
+    if(!r){
+      r = { id: uid(), planId, studentId, level:"", remark:"" };
+      data.evalResults.push(r);
+    }
+    return r;
+  }
+  const LEVEL_CLASS = { "매우잘함":"lvl-verygood", "잘함":"lvl-good", "보통":"lvl-fair", "노력요함":"lvl-needs" };
+  function renderEvalSubjectTable(){
+    const wrap = document.getElementById("evalSubjectTables");
+    if(!activeEvalSubject){ wrap.innerHTML = ""; return; }
+    const plans = data.evalPlans.filter(p=>p.subject===activeEvalSubject);
+    if(plans.length===0){ wrap.innerHTML = ""; return; }
+    const students = [...data.students].sort((a,b)=>{
+      const av = studentSortValue(a), bv = studentSortValue(b);
+      if(av !== bv) return av - bv;
+      return data.students.indexOf(a) - data.students.indexOf(b);
+    });
+
+    const useScrollMode = plans.length >= 4;
+    const containerWidth = wrap.clientWidth || (wrap.parentElement ? wrap.parentElement.clientWidth : 0) || 800;
+    const fixedGroupWidth = Math.max(120, Math.floor((containerWidth - 128) / 3));
+    const groupWidthStyle = useScrollMode ? `width:${fixedGroupWidth}px;` : `width:calc((100% - 128px)/${plans.length});`;
+    const headRow1 = `<th rowspan="2" class="eval-th-fixed">번호</th><th rowspan="2" class="eval-th-fixed">이름</th>` +
+      plans.map(p=>`<th colspan="2" class="eval-th-clickable" style="${groupWidthStyle}" data-plan-id="${p.id}">${escapeHtml(p.unit||"-")}<br>${escapeHtml(p.item||"-")}</th>`).join("");
+    const headRow2 = plans.map(()=>`<th class="eval-th-sub">성취수준</th><th class="eval-th-sub">비고</th>`).join("");
+
+    const bodyRows = students.map(s=>{
+      const numberCell = (s.number===undefined || s.number===null || s.number==="") ? "-" : escapeHtml(String(s.number));
+      const planCells = plans.map(p=>{
+        const r = findEvalResult(p.id, s.id);
+        const level = r ? r.level : "";
+        const remark = r ? r.remark : "";
+        const lvlClass = LEVEL_CLASS[level] || "";
+        return `
+          <td>
+            <select class="eval-level-select ${lvlClass}" data-plan-id="${p.id}" data-student-id="${s.id}">
+              <option value="">-</option>
+              ${EVAL_LEVELS.map(lv=>`<option value="${lv}" ${lv===level?'selected':''}>${lv}</option>`).join("")}
+            </select>
+          </td>
+          <td class="eval-remark-td">
+            <input type="text" class="eval-remark-input" data-plan-id="${p.id}" data-student-id="${s.id}" value="${escapeHtml(remark)}" placeholder="비고">
+          </td>`;
+      }).join("");
+      return `<tr><td class="eval-td-fixed">${numberCell}</td><td class="eval-td-fixed">${escapeHtml(s.name)}</td>${planCells}</tr>`;
+    }).join("");
+
+    const tableStyle = useScrollMode ? `width:${52 + 76 + plans.length*fixedGroupWidth}px;` : `width:100%;`;
+    wrap.innerHTML = `<div class="eval-table-wrap"><table class="eval-table" style="${tableStyle}">
+      <thead><tr>${headRow1}</tr><tr>${headRow2}</tr></thead>
+      <tbody>${bodyRows || `<tr><td colspan="${2+plans.length*2}"><div class="empty-note">등록된 학생이 없습니다.</div></td></tr>`}</tbody>
+    </table></div>`;
+
+    wrap.querySelectorAll(".eval-level-select").forEach(sel=>{
+      sel.addEventListener("change", ()=>{
+        const r = getOrCreateEvalResult(sel.dataset.planId, sel.dataset.studentId);
+        r.level = sel.value;
+        save();
+        sel.className = "eval-level-select " + (LEVEL_CLASS[sel.value] || "");
+      });
+    });
+    wrap.querySelectorAll(".eval-remark-input").forEach(inp=>{
+      inp.addEventListener("blur", ()=>{
+        const r = getOrCreateEvalResult(inp.dataset.planId, inp.dataset.studentId);
+        r.remark = inp.value.trim();
+        save();
+      });
+      inp.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){ e.preventDefault(); inp.blur(); }
+      });
+    });
+    wrap.querySelectorAll(".eval-th-clickable").forEach(th=>{
+      th.addEventListener("click", ()=> openEvalPlanPopup(th));
+    });
+  }
+
+  /* ---- Eval plan edit/delete popup ---- */
+  const evalPlanPopup = document.getElementById("evalPlanPopup");
+  const evalPlanPopupDeleteBtn = document.getElementById("evalPlanPopupDelete");
+  let activeEvalPlanId = null;
+  let evalPlanDeleteArmed = false;
+  function openEvalPlanPopup(th){
+    const plan = data.evalPlans.find(p=>p.id===th.dataset.planId);
+    if(!plan) return;
+    activeEvalPlanId = plan.id;
+    evalPlanDeleteArmed = false;
+    evalPlanPopupDeleteBtn.textContent = "삭제";
+    evalPlanPopupDeleteBtn.classList.remove("confirm-armed");
+    document.getElementById("evalPlanPopupSubject").value = plan.subject;
+    document.getElementById("evalPlanPopupUnit").value = plan.unit;
+    document.getElementById("evalPlanPopupItem").value = plan.item;
+    const rect = th.getBoundingClientRect();
+    evalPlanPopup.classList.add("open");
+    const pw = evalPlanPopup.offsetWidth;
+    const ph = evalPlanPopup.offsetHeight;
+    let left = rect.right + 10;
+    if(left + pw > window.innerWidth - 10) left = rect.left - pw - 10;
+    if(left < 10) left = 10;
+    let top = rect.top;
+    if(top + ph > window.innerHeight - 10) top = window.innerHeight - ph - 10;
+    if(top < 10) top = 10;
+    evalPlanPopup.style.left = left + "px";
+    evalPlanPopup.style.top = top + "px";
+  }
+  function closeEvalPlanPopup(){
+    evalPlanPopup.classList.remove("open");
+    activeEvalPlanId = null;
+  }
+  document.addEventListener("click", (e)=>{
+    if(evalPlanPopup.classList.contains("open") &&
+       !evalPlanPopup.contains(e.target) &&
+       !e.target.closest(".eval-th-clickable")){
+      closeEvalPlanPopup();
+    }
+  });
+  document.getElementById("evalPlanPopupSave").addEventListener("click", ()=>{
+    const plan = data.evalPlans.find(p=>p.id===activeEvalPlanId);
+    if(!plan) return;
+    plan.unit = document.getElementById("evalPlanPopupUnit").value.trim() || plan.unit;
+    plan.item = document.getElementById("evalPlanPopupItem").value.trim() || plan.item;
+    save();
+    renderEvalSubjectTable();
+    closeEvalPlanPopup();
+  });
+  evalPlanPopupDeleteBtn.addEventListener("click", ()=>{
+    if(!activeEvalPlanId) return;
+    if(!evalPlanDeleteArmed){
+      evalPlanDeleteArmed = true;
+      evalPlanPopupDeleteBtn.textContent = "정말 삭제할까요?";
+      evalPlanPopupDeleteBtn.classList.add("confirm-armed");
+      return;
+    }
+    const planId = activeEvalPlanId;
+    data.evalPlans = data.evalPlans.filter(p=>p.id!==planId);
+    data.evalResults = data.evalResults.filter(r=>r.planId!==planId);
+    save();
+    closeEvalPlanPopup();
+    renderEvalSubjectButtons();
+    renderEvalSubjectTable();
+  });
+
+  function renderEvalPlanSubjectOptions(){
+    const sel = document.getElementById("evalPlanSubject");
+    const prev = sel.value;
+    sel.innerHTML = data.subjects.length
+      ? data.subjects.map(s=>`<option value="${escapeHtml(s.name)}">${escapeHtml(s.name)}</option>`).join("")
+      : `<option value="">시간표에서 과목을 먼저 등록하세요</option>`;
+    if(data.subjects.some(s=>s.name===prev)) sel.value = prev;
+  }
+  document.getElementById("evalPlanAddBtn").addEventListener("click", ()=>{
+    const subjectEl = document.getElementById("evalPlanSubject");
+    const unitEl = document.getElementById("evalPlanUnit");
+    const itemEl = document.getElementById("evalPlanItem");
+    const subject = subjectEl.value.trim();
+    const unit = unitEl.value.trim();
+    const item = itemEl.value.trim();
+    if(!subject || !unit || !item) return;
+    data.evalPlans.push({ id: uid(), subject, unit, item });
+    activeEvalSubject = subject;
+    unitEl.value = "";
+    itemEl.value = "";
+    save();
+    renderEvalSubjectButtons();
+    renderEvalSubjectTable();
+  });
+
+  /* ---------------- Student database ---------------- */
+  const studentDbModalOverlay = document.getElementById("studentDbModalOverlay");
+  const studentDbTableBody = document.getElementById("studentDbTableBody");
+
+  function refreshAllStudentDependentUI(){
+    renderRecordStudentOptions();
+    renderStudentRecordBlocks();
+    renderAttendanceStudentOptions();
+    renderAttendanceTable();
+    renderParentSelect();
+    renderParentTable();
+    renderEvalSubjectButtons();
+    renderEvalSubjectTable();
+  }
+
+  function renderStudentDbTable(){
+    const students = [...data.students].sort((a,b)=>{
+      const av = studentSortValue(a), bv = studentSortValue(b);
+      if(av !== bv) return av - bv;
+      return data.students.indexOf(a) - data.students.indexOf(b);
+    });
+    if(students.length===0){
+      studentDbTableBody.innerHTML = `<tr><td colspan="4"><div class="empty-note">등록된 학생이 없습니다.</div></td></tr>`;
+      return;
+    }
+    studentDbTableBody.innerHTML = students.map(s=>`
+      <tr data-id="${s.id}">
+        <td contenteditable="true" data-field="number">${escapeHtml(s.number!==undefined && s.number!==null ? String(s.number) : "")}</td>
+        <td contenteditable="true" data-field="name">${escapeHtml(s.name||"")}</td>
+        <td class="db-gender-cell" data-id="${s.id}">${escapeHtml(s.gender||"")}</td>
+        <td><button class="row-del" data-id="${s.id}">×</button></td>
+      </tr>`).join("");
+
+    studentDbTableBody.querySelectorAll('td[contenteditable="true"]').forEach(td=>{
+      td.addEventListener("blur", ()=>{
+        const id = td.closest("tr").dataset.id;
+        const s = data.students.find(x=>x.id===id);
+        if(!s) return;
+        const field = td.dataset.field;
+        const val = td.textContent.trim();
+        s[field] = val;
+        save();
+        renderStudentDbTable();
+        refreshAllStudentDependentUI();
+      });
+      td.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter"){ e.preventDefault(); td.blur(); }
+      });
+    });
+    studentDbTableBody.querySelectorAll(".db-gender-cell").forEach(td=>{
+      td.addEventListener("click", function handler(){
+        td.removeEventListener("click", handler);
+        const id = td.dataset.id;
+        const s = data.students.find(x=>x.id===id);
+        if(!s) return;
+        td.innerHTML = `<select class="db-gender-select">
+          <option value="">-</option>
+          <option value="남" ${s.gender==='남'?'selected':''}>남</option>
+          <option value="여" ${s.gender==='여'?'selected':''}>여</option>
+        </select>`;
+        const sel = td.querySelector("select");
+        sel.focus();
+        let committed = false;
+        function commit(){
+          if(committed) return;
+          committed = true;
+          s.gender = sel.value;
+          save();
+          renderStudentDbTable();
+        }
+        sel.addEventListener("change", commit);
+        sel.addEventListener("blur", commit);
+      });
+    });
+    studentDbTableBody.querySelectorAll(".row-del").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        data.students = data.students.filter(x=>x.id!==btn.dataset.id);
+        save();
+        renderStudentDbTable();
+        refreshAllStudentDependentUI();
+      });
+    });
+  }
+  document.getElementById("dbStudentAddBtn").addEventListener("click", ()=>{
+    const numberEl = document.getElementById("dbStudentNumber");
+    const nameEl = document.getElementById("dbStudentName");
+    const genderEl = document.getElementById("dbStudentGender");
+    const name = nameEl.value.trim();
+    if(!name) return;
+    data.students.push({
+      id: uid(),
+      number: numberEl.value.trim(),
+      name,
+      gender: genderEl.value,
+      records: []
+    });
+    numberEl.value = "";
+    nameEl.value = "";
+    save();
+    renderStudentDbTable();
+    refreshAllStudentDependentUI();
+  });
+  document.getElementById("studentDbBtn").addEventListener("click", ()=>{
+    renderStudentDbTable();
+    studentDbModalOverlay.classList.add("open");
+  });
+  document.getElementById("studentDbModalClose").addEventListener("click", ()=>{
+    studentDbModalOverlay.classList.remove("open");
+  });
+  studentDbModalOverlay.addEventListener("click", (e)=>{
+    if(e.target === studentDbModalOverlay) studentDbModalOverlay.classList.remove("open");
+  });
+
+  /* ---------------- Init ---------------- */
+  function renderEverything(){
+    loadMeta();
+    renderClassArchiveList();
+    renderCalendar();
+    renderWeekSelector();
+    renderTimetable();
+    renderWeekNotes();
+    renderTodayCount();
+    renderSchedule();
+    renderChecklist();
+    renderRecordStudentOptions();
+    renderStudentRecordBlocks();
+    renderAttendanceStudentOptions();
+    renderAttendanceTable();
+    renderParentSelect();
+    renderParentTable();
+    renderEvalPlanSubjectOptions();
+    renderEvalSubjectButtons();
+    renderEvalSubjectTable();
+  }
+  renderEverything();
+  document.getElementById("scheduleDate").value = todayStr();
+  document.getElementById("attDate").value = todayStr();
+  document.getElementById("pcDate").value = todayStr();
+  recordFilterDate.value = todayStr();
+  // let the cloud-sync layer trigger a full re-render once remote data has been merged in
+  window.refreshAllUI = renderEverything;
+
+})();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // Firebase project config (safe to expose client-side; access is controlled by Firestore security rules)
+  const firebaseConfig = {
+    apiKey: "AIzaSyA9b5gj0LLCBBH2ckIo8csuVCnB8R067s0",
+    authDomain: "class-dashboard-7bfc0.firebaseapp.com",
+    databaseURL: "https://class-dashboard-7bfc0-default-rtdb.firebaseio.com",
+    projectId: "class-dashboard-7bfc0",
+    storageBucket: "class-dashboard-7bfc0.firebasestorage.app",
+    messagingSenderId: "16908821293",
+    appId: "1:16908821293:web:36f87a43c8ef9cad0d69a4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  let currentUser = null;
+  let isDownloadingCloud = false;
+  let saveDebounceTimer = null;
+
+  const userInfoEl = document.getElementById("userInfo");
+  const authBtn = document.getElementById("authBtn");
+  const syncStatusEl = document.getElementById("syncStatus");
+  const footNoteEl = document.getElementById("sidebarFootNote");
+
+  function setSyncStatus(text, cls){
+    syncStatusEl.textContent = text;
+    syncStatusEl.className = "sync-status" + (cls ? " " + cls : "");
+  }
+
+  // Called by the main dashboard script's save() every time local data changes.
+  // Debounced slightly so rapid edits (e.g. typing) don't spam Firestore writes.
+  window.cloudSync = function(){
+    if(!currentUser || isDownloadingCloud) return;
+    setSyncStatus("🔄 동기화 중...", "syncing");
+    clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = setTimeout(async ()=>{
+      try{
+        await setDoc(doc(db, "users", currentUser.uid), {
+          dashboardData: window.data,
+          lastSaved: new Date().toISOString()
+        }, { merge: true });
+        setSyncStatus("🟢 클라우드 동기화 완료", "synced");
+      }catch(e){
+        console.error("클라우드 저장 실패:", e);
+        setSyncStatus("⚠️ 동기화 실패 (Firestore 권한을 확인하세요)", "error");
+      }
+    }, 400);
+  };
+
+  onAuthStateChanged(auth, async (user)=>{
+    if(user){
+      currentUser = user;
+      userInfoEl.textContent = `${user.displayName || user.email}님 로그인됨`;
+      authBtn.textContent = "로그아웃";
+      authBtn.classList.add("logout-btn");
+      footNoteEl.innerHTML = "GOOGLE 계정에 동기화됨<br>어디서든 로그인하면 이어집니다";
+      setSyncStatus("🔄 클라우드 데이터를 불러오는 중...", "syncing");
+
+      isDownloadingCloud = true;
+      try{
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if(snap.exists() && snap.data().dashboardData){
+          // merge into the SAME object the dashboard script already references,
+          // so every closure holding `data` sees the update immediately
+          Object.assign(window.data, snap.data().dashboardData);
+          localStorage.setItem("classDashboardData_v1", JSON.stringify(window.data));
+          setSyncStatus("🟢 클라우드 동기화 완료", "synced");
+        } else {
+          // first time this account has signed in: upload whatever is on this device
+          setSyncStatus("🔄 처음 로그인, 현재 데이터를 업로드 중...", "syncing");
+          await setDoc(doc(db, "users", user.uid), {
+            dashboardData: window.data,
+            lastSaved: new Date().toISOString()
+          }, { merge: true });
+          setSyncStatus("🟢 클라우드 동기화 완료", "synced");
+        }
+      }catch(e){
+        console.error("클라우드 불러오기 실패:", e);
+        setSyncStatus("⚠️ 로컬 모드 (불러오기 실패)", "error");
+      }finally{
+        isDownloadingCloud = false;
+      }
+
+      if(typeof window.refreshAllUI === "function") window.refreshAllUI();
+    } else {
+      currentUser = null;
+      userInfoEl.textContent = "로그인이 필요합니다.";
+      authBtn.textContent = "Google 계정으로 로그인";
+      authBtn.classList.remove("logout-btn");
+      footNoteEl.innerHTML = "DATA SAVED LOCALLY<br>이 브라우저에만 저장됩니다";
+      setSyncStatus("로컬 모드로 작동 중", "");
+    }
+  });
+
+  authBtn.addEventListener("click", ()=>{
+    if(currentUser){
+      if(confirm("로그아웃 하시겠습니까? 이 브라우저에 저장된 데이터는 그대로 유지됩니다.")){
+        signOut(auth);
+      }
+    } else {
+      signInWithPopup(auth, provider).catch(err=>{
+        alert("로그인에 실패했습니다: " + err.message);
+      });
+    }
+  });
+</script>
+</body>
+</html>
